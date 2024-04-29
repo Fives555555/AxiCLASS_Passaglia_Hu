@@ -411,6 +411,28 @@ int background_functions(
      Note: The scalar field contribution must be added in the end, as an exception!*/
   double dp_dloga;
 
+
+  /**ADDITIONAL LOCAL VARIABLES*/
+  // double da_sw;
+  // double drho_sw;
+  // double d2a_sw;
+  double D_sw;
+  double phi_c;
+  double phi_s;
+  double phi_prime_c;
+  double phi_prime_s;
+  /**INITIALISE ADDITIONAL LOCAL VARIABLES*/
+  // da_sw = 0.;
+  // drho_sw = 0.;
+  // d2a_sw = 0.;
+  D_sw = 0.;
+  phi_c = 0.;
+  phi_s = 0.;
+  phi_prime_c = 0.;
+  phi_prime_s = 0.;
+
+
+
   /** - initialize local variables */
   rho_tot = 0.;
   p_tot = 0.;
@@ -520,7 +542,121 @@ int background_functions(
     if(pba->kg_fld_switch == _FALSE_){
       pba->kg_fld_switch = _TRUE_;
       //if we just switched from KG to fluid, we need to correctly initialize the density.
+      
+
+
+
+      //if we just switched from KG to fluid, we need to correctly initialize the density.
+      //Here we do this in the same way, but instead use the auxiliary variables of Passaglia and Hu.
+
+
+      // Need to alter equations to match the units of the code? - use 'pba->a' or maybe local variable 'a'
+
+
+      // Need to check the Friedmann equation that is integrated to rederive the da and d2a equations
+
+      /** - compute expansion rate H from Friedmann equation: this is the
+      only place where the Friedmann equation is assumed. Remember
+      that densities are all expressed in units of \f$ [3c^2/8\pi G] \f$, ie
+      \f$ \rho_{class} = [8 \pi G \rho_{physical} / 3 c^2]\f$ */
+      // pvecback[pba->index_bg_H] = sqrt(rho_tot-pba->K/a/a);
+      /** - compute derivative of H with respect to conformal time */
+      // pvecback[pba->index_bg_H_prime] = - (3./2.) * (rho_tot + p_tot) * a + pba->K/a;
+      
+
+      phi = pvecback_B[pba->index_bi_phi_scf];
+      phi_prime = pvecback_B[pba->index_bi_phi_prime_scf];  
+          
+      // D_sw = -(5/(2*pvecback_B[pba->index_bg_a]))*da_sw + (d2a_sw/(da_sw)); //OLD
+      D_sw = -(3./2.)*pvecback[pba->index_bg_H] + pvecback[pba->index_bg_H_prime]/pvecback[pba->index_bg_H]; //NEW
+
+      phi_c = phi;
+
+
+      // // Original equations - IGNORE
+      // phi_s = (6*pba->m_scf*pvecback[pba->index_bg_H]*phi) + 
+      //     (phi_prime/pba->m_scf)*(4*pow(pba->m_scf,2) + pow(D_sw,2) + 
+      //     (6*D_sw*pvecback[pba->index_bg_H]) + (9*pow(pvecback[pba->index_bg_H],2)))/
+      //     4*pow(pba->m_scf,2) + pow(D_sw,2) + (3*D_sw*pvecback[pba->index_bg_H]);
+    
+      // phi_prime_c = (-(3*pvecback[pba->index_bg_H])*(2*phi*pow(pba->m_scf,2) + (D_sw*phi_prime) + 
+      //     (3*pvecback[pba->index_bg_H]*phi_prime)))/
+      //     4*pow(pba->m_scf,2) + pow(D_sw,2) + (3*D_sw*pvecback[pba->index_bg_H]);
+
+      // phi_prime_s = ((3*pvecback[pba->index_bg_H])*(pba->m_scf*D_sw*phi - (2*pba->m_scf*phi_prime)))/
+      //     4*pow(pba->m_scf,2) + pow(D_sw,2) + (3*D_sw*pvecback[pba->index_bg_H]);
+
+
+
+
+
+
+
+      // // With the factors of 1/a added and without the factors of m removed - MINE
+      // phi_s = 6*pow(pvecback[pba->index_bg_H],2)*(-4*pvecback[pba->index_bg_H]*pba->m_scf*phi - phi_prime*((3*pow(pvecback[pba->index_bg_H],2)/
+      //     (2*pba->m_scf*a)) + (8*pba->m_scf/(3*a)) + (2*pow(pvecback[pba->index_bg_H_prime], 2)/(3*pba->m_scf*pow(pvecback[pba->index_bg_H],2)*pow(a,3))) +
+      //     (2*pvecback[pba->index_bg_H_prime]/(pba->m_scf*pow(a,2)))))/(9*pow(pvecback[pba->index_bg_H],4) - 
+      //     4*(4*pow(pvecback[pba->index_bg_H],2)*pow(pba->m_scf,2) + pow(pvecback[pba->index_bg_H_prime],2)/pow(a,2)));
+      
+    
+      // phi_prime_c = 6*pba->m_scf*pow(pvecback[pba->index_bg_H],2)*(4*pvecback[pba->index_bg_H]*pba->m_scf*phi + 
+      //     (3*pow(pvecback[pba->index_bg_H],2)*phi_prime/(pba->m_scf*a)) + 
+      //     (2*pvecback[pba->index_bg_H_prime]*phi_prime/(pba->m_scf*pow(a,2))))/(9*pow(pvecback[pba->index_bg_H],4) - 
+      //     4*(4*pow(pvecback[pba->index_bg_H],2)*pow(pba->m_scf,2) + pow(pvecback[pba->index_bg_H_prime],2)/pow(a,2)));
+
+
+      // phi_prime_s = 6*pba->m_scf*pow(pvecback[pba->index_bg_H],2)*(3*pow(pvecback[pba->index_bg_H],2)*phi - 2*pvecback[pba->index_bg_H]*phi/a + 
+      //     4*pvecback[pba->index_bg_H]*phi_prime/a)/(9*pow(pvecback[pba->index_bg_H],4) - 4*(4*pow(pvecback[pba->index_bg_H],2)*pow(pba->m_scf,2) + 
+      //     pow(pvecback[pba->index_bg_H_prime],2)/pow(a,2)));
+
+
+
+      // With the factors of m removed and the factors of 1/a added - to match TriggerCLASS
+      phi_s = 6*pow(pvecback[pba->index_bg_H],2)*(-4*pvecback[pba->index_bg_H]*pba->m_scf*phi - phi_prime*((3*pow(pvecback[pba->index_bg_H],2)/
+          (2*pba->m_scf*a)) + (8*pba->m_scf/(3*a)) + (2*pow(pvecback[pba->index_bg_H_prime], 2)/(3*pba->m_scf*pow(pvecback[pba->index_bg_H],2)*pow(a,3))) +
+          (2*pvecback[pba->index_bg_H_prime]/(pba->m_scf*pow(a,2)))))/(9*pow(pvecback[pba->index_bg_H],4) - 
+          4*(4*pow(pvecback[pba->index_bg_H],2)*pow(pba->m_scf,2) + pow(pvecback[pba->index_bg_H_prime],2)/pow(a,2)));
+      
+      
+      phi_prime_c = 6*pow(pvecback[pba->index_bg_H],2)*(4*pvecback[pba->index_bg_H]*pba->m_scf*phi + 
+          (3*pow(pvecback[pba->index_bg_H],2)*phi_prime/(pba->m_scf*a)) + 
+          (2*pvecback[pba->index_bg_H_prime]*phi_prime/(pba->m_scf*pow(a,2))))/(9*pow(pvecback[pba->index_bg_H],4) - 
+          4*(4*pow(pvecback[pba->index_bg_H],2)*pow(pba->m_scf,2) + pow(pvecback[pba->index_bg_H_prime],2)/pow(a,2)));
+
+
+      phi_prime_s = 6*pow(pvecback[pba->index_bg_H],2)*(3*pow(pvecback[pba->index_bg_H],2)*phi - 2*pvecback[pba->index_bg_H]*phi/a + 
+          4*pvecback[pba->index_bg_H]*phi_prime/a)/(9*pow(pvecback[pba->index_bg_H],4) - 4*(4*pow(pvecback[pba->index_bg_H],2)*pow(pba->m_scf,2) + 
+          pow(pvecback[pba->index_bg_H_prime],2)/pow(a,2)));
+
+
+      // // Original equation - MINE
+      // pvecback_B[pba->index_bi_rho_scf] = (0.5*( pow(pba->m_scf,2)*pow(phi_c,2) + 
+      //     pow(pba->m_scf,2)*pow(phi_s,2) + 0.5*pow(phi_prime_c,2) + 0.5*pow(phi_prime_s,2) - 
+      //     pba->m_scf*phi_c*phi_prime_s + pba->m_scf*phi_s*phi_prime_c))/3.0;
+
+
+      // TriggerCLASS equation
+      pvecback_B[pba->index_bi_rho_scf] = (0.5 * pow(pba->m_scf, 2) * (phi_c * phi_c + phi_s * phi_s + 0.5 * (phi_prime_c * phi_prime_c + 
+          phi_prime_s * phi_prime_s) - phi_c * phi_prime_s + phi_s * phi_prime_c))/3.0;
+
+
+
+      printf("phi %e \n", phi);
+      printf("phi_prime %e \n", phi_prime);
+      printf("phi_c %e \n", phi_c);
+      printf("phi_s %e \n", phi_s);
+      printf("phi_c_prime %e \n", phi_prime_c);
+      printf("phi_prime_s %e \n", phi_prime_s);
+
+      printf("New rho %e \n", pvecback_B[pba->index_bi_rho_scf]);
+
+
       pvecback_B[pba->index_bi_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.;
+
+      printf("Original rho %e \n", pvecback_B[pba->index_bi_rho_scf]);
+      
+
+
     }
     /****THE REAL QUANTITIES ARE ASSIGNED HERE****/
     //pvecback[pba->index_bg_rho_scf] = pba->Omega0_scf * pow(pba->H0,2) / pow(a_rel,3);
@@ -529,10 +665,13 @@ int background_functions(
     pvecback[pba->index_bg_p_scf] = pba->w_scf*pvecback_B[pba->index_bi_rho_scf];
     if(pba->log10_axion_ac > -30){
       /* approximate fluid equation of state for the axion */
-      pvecback[pba->index_bg_w_scf] = (1+pba->w_scf)/(1+pow(pba->a_c/a,3*(1+pba->w_scf)))-1;
+      // pvecback[pba->index_bg_w_scf] = (1+pba->w_scf)/(1+pow(pba->a_c/a,3*(1+pba->w_scf)))-1;
+      /*CHANGE TO THIS??*/
+      pvecback[pba->index_bg_w_scf] = (3/2)*pow((pba->m_scf/pba->index_bg_H),-2);
     }
     else{
-      pvecback[pba->index_bg_w_scf] = pba->w_scf;
+      // pvecback[pba->index_bg_w_scf] = pba->w_scf;
+      pvecback[pba->index_bg_w_scf] = (3/2)*pow((pba->m_scf/pba->index_bg_H),-2);
     }
 
 
@@ -1042,7 +1181,9 @@ int background_init(
   if(pba->has_scf == _TRUE_){
         if(pba->scf_potential == axionquad){
           pba->m_scf = pba->scf_parameters[0]*_eV_over_Mpc_/pba->H0; //from eV to Mpc^-1 to unit of H0
-          pba->w_scf = 0;
+          // pba->w_scf = 0;
+          pba->w_scf = (3/2)*pow((pba->m_scf/pba->index_bg_H),-2);
+          
         }
         else if(pba->scf_potential == axion){
             if(pba->f_axion > 0 && pba->m_scf > 0){
@@ -1150,7 +1291,8 @@ int background_init(
               // printf("pba->m_scf %e pba->power_of_mu %e \n",pba->m_scf,pba->power_of_mu);
           }
 
-            pba->w_scf = (pba->n_axion-1.0)/(pba->n_axion+1.0);
+            //pba->w_scf = (pba->n_axion-1.0)/(pba->n_axion+1.0);
+            pba->w_scf = (3/2)*pow((pba->m_scf/pba->index_bg_H),-2);
 
             // pba->scf_parameters[0]*=pba->f_axion; //conversion from theta_i to phi_i; multiplying by fa
             // pba->scf_parameters[1]*=pba->f_axion; //conversion from theta_dot_i to phi_dot_i; multiplying by fa
@@ -1163,7 +1305,8 @@ int background_init(
         }
         else{
           pba->m_scf = 0;
-          pba->w_scf = 0; //default to 0 but never used in that case
+          // pba->w_scf = 0; //default to 0 but never used in that case
+          pba->w_scf = (3/2)*pow((pba->m_scf/pba->index_bg_H),-2);
         }
 
         pba->f_ede=0.0;
