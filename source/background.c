@@ -413,23 +413,20 @@ int background_functions(
 
 
   /**ADDITIONAL LOCAL VARIABLES*/
-  // double da_sw;
-  // double drho_sw;
-  // double d2a_sw;
   double D_sw;
   double phi_c;
   double phi_s;
   double phi_prime_c;
   double phi_prime_s;
+  double factor;
   /**INITIALISE ADDITIONAL LOCAL VARIABLES*/
-  // da_sw = 0.;
-  // drho_sw = 0.;
-  // d2a_sw = 0.;
   D_sw = 0.;
   phi_c = 0.;
   phi_s = 0.;
   phi_prime_c = 0.;
   phi_prime_s = 0.;
+  factor = 0.;
+  
 
 
 
@@ -541,27 +538,9 @@ int background_functions(
 
     if(pba->kg_fld_switch == _FALSE_){
       pba->kg_fld_switch = _TRUE_;
-      //if we just switched from KG to fluid, we need to correctly initialize the density.
       
-
-
-
       //if we just switched from KG to fluid, we need to correctly initialize the density.
       //Here we do this in the same way, but instead use the auxiliary variables of Passaglia and Hu.
-
-
-      // Need to alter equations to match the units of the code? - use 'pba->a' or maybe local variable 'a'
-
-
-      // Need to check the Friedmann equation that is integrated to rederive the da and d2a equations
-
-      /** - compute expansion rate H from Friedmann equation: this is the
-      only place where the Friedmann equation is assumed. Remember
-      that densities are all expressed in units of \f$ [3c^2/8\pi G] \f$, ie
-      \f$ \rho_{class} = [8 \pi G \rho_{physical} / 3 c^2]\f$ */
-      // pvecback[pba->index_bg_H] = sqrt(rho_tot-pba->K/a/a);
-      /** - compute derivative of H with respect to conformal time */
-      // pvecback[pba->index_bg_H_prime] = - (3./2.) * (rho_tot + p_tot) * a + pba->K/a;
       
 
       phi = pvecback_B[pba->index_bi_phi_scf];
@@ -588,56 +567,60 @@ int background_functions(
 
 
 
+      // MINE
+      factor =  6*pow(pvecback[pba->index_bg_H],2)/(9*pow(pvecback[pba->index_bg_H],4) - 
+          4*(4*pow(pvecback[pba->index_bg_H],2)*pow(pba->m_scf,2) + pow(pvecback[pba->index_bg_H_prime],2)/pow(a,2)));
 
 
-
-
-      // // With the factors of 1/a added and without the factors of m removed - MINE
-      // phi_s = 6*pow(pvecback[pba->index_bg_H],2)*(-4*pvecback[pba->index_bg_H]*pba->m_scf*phi - phi_prime*((3*pow(pvecback[pba->index_bg_H],2)/
+      // phi_s = factor*(-4*pvecback[pba->index_bg_H]*pba->m_scf*phi - phi_prime*((3*pow(pvecback[pba->index_bg_H],2)/
       //     (2*pba->m_scf*a)) + (8*pba->m_scf/(3*a)) + (2*pow(pvecback[pba->index_bg_H_prime], 2)/(3*pba->m_scf*pow(pvecback[pba->index_bg_H],2)*pow(a,3))) +
-      //     (2*pvecback[pba->index_bg_H_prime]/(pba->m_scf*pow(a,2)))))/(9*pow(pvecback[pba->index_bg_H],4) - 
-      //     4*(4*pow(pvecback[pba->index_bg_H],2)*pow(pba->m_scf,2) + pow(pvecback[pba->index_bg_H_prime],2)/pow(a,2)));
+      //     (2*pvecback[pba->index_bg_H_prime]/(pba->m_scf*pow(a,2)))));
+
+      
       
     
-      // phi_prime_c = 6*pba->m_scf*pow(pvecback[pba->index_bg_H],2)*(4*pvecback[pba->index_bg_H]*pba->m_scf*phi + 
-      //     (3*pow(pvecback[pba->index_bg_H],2)*phi_prime/(pba->m_scf*a)) + 
-      //     (2*pvecback[pba->index_bg_H_prime]*phi_prime/(pba->m_scf*pow(a,2))))/(9*pow(pvecback[pba->index_bg_H],4) - 
-      //     4*(4*pow(pvecback[pba->index_bg_H],2)*pow(pba->m_scf,2) + pow(pvecback[pba->index_bg_H_prime],2)/pow(a,2)));
+      phi_prime_c = factor*a*pba->m_scf*(4*pvecback[pba->index_bg_H]*pba->m_scf*phi + (3*pow(pvecback[pba->index_bg_H],2)*phi_prime/(pba->m_scf*a)) + 
+          (2*pvecback[pba->index_bg_H_prime]*phi_prime/(pba->m_scf*pow(a,2))));
+
+      
+      phi_s = phi_prime - phi_prime_c;
 
 
-      // phi_prime_s = 6*pba->m_scf*pow(pvecback[pba->index_bg_H],2)*(3*pow(pvecback[pba->index_bg_H],2)*phi - 2*pvecback[pba->index_bg_H]*phi/a + 
-      //     4*pvecback[pba->index_bg_H]*phi_prime/a)/(9*pow(pvecback[pba->index_bg_H],4) - 4*(4*pow(pvecback[pba->index_bg_H],2)*pow(pba->m_scf,2) + 
+      phi_prime_s = factor*a*pba->m_scf*(3*pow(pvecback[pba->index_bg_H],2)*phi - 2*pvecback[pba->index_bg_H_prime]*phi/a + 
+          4*pvecback[pba->index_bg_H]*phi_prime/a);
+
+
+      // Original equation - MINE
+      pvecback_B[pba->index_bi_rho_scf] = (0.5*( pow(pba->m_scf,2)*pow(phi_c,2) + pow(pba->m_scf,2)*pow(phi_s,2) + 0.5*pow(phi_prime_c,2)/pow(a,2) + 
+          0.5*pow(phi_prime_s,2)/pow(a,2) - pba->m_scf*phi_c*phi_prime_s/a + pba->m_scf*phi_s*phi_prime_c/a))/3.0;
+
+
+
+
+      // // TriggerCLASS
+
+      // factor = 6*pow(pvecback[pba->index_bg_H],2)/(9*pow(pvecback[pba->index_bg_H],4) - 4*(4*pow(pvecback[pba->index_bg_H],2)*pow(pba->m_scf,2) + 
       //     pow(pvecback[pba->index_bg_H_prime],2)/pow(a,2)));
 
 
-
-      // With the factors of m removed and the factors of 1/a added - to match TriggerCLASS
-      phi_s = 6*pow(pvecback[pba->index_bg_H],2)*(-4*pvecback[pba->index_bg_H]*pba->m_scf*phi - phi_prime*((3*pow(pvecback[pba->index_bg_H],2)/
-          (2*pba->m_scf*a)) + (8*pba->m_scf/(3*a)) + (2*pow(pvecback[pba->index_bg_H_prime], 2)/(3*pba->m_scf*pow(pvecback[pba->index_bg_H],2)*pow(a,3))) +
-          (2*pvecback[pba->index_bg_H_prime]/(pba->m_scf*pow(a,2)))))/(9*pow(pvecback[pba->index_bg_H],4) - 
-          4*(4*pow(pvecback[pba->index_bg_H],2)*pow(pba->m_scf,2) + pow(pvecback[pba->index_bg_H_prime],2)/pow(a,2)));
+      // // phi_s = factor*(-4*pvecback[pba->index_bg_H]*pba->m_scf*phi - phi_prime*((3*pow(pvecback[pba->index_bg_H],2)/
+      // //     (2*pba->m_scf*a)) + (8*pba->m_scf/(3*a)) + (2*pow(pvecback[pba->index_bg_H_prime], 2)/(3*pba->m_scf*pow(pvecback[pba->index_bg_H],2)*pow(a,3))) +
+      // //     (2*pvecback[pba->index_bg_H_prime]/(pba->m_scf*pow(a,2)))));
       
       
-      phi_prime_c = 6*pow(pvecback[pba->index_bg_H],2)*(4*pvecback[pba->index_bg_H]*pba->m_scf*phi + 
-          (3*pow(pvecback[pba->index_bg_H],2)*phi_prime/(pba->m_scf*a)) + 
-          (2*pvecback[pba->index_bg_H_prime]*phi_prime/(pba->m_scf*pow(a,2))))/(9*pow(pvecback[pba->index_bg_H],4) - 
-          4*(4*pow(pvecback[pba->index_bg_H],2)*pow(pba->m_scf,2) + pow(pvecback[pba->index_bg_H_prime],2)/pow(a,2)));
+      // phi_prime_c = factor*(4*pvecback[pba->index_bg_H]*pba->m_scf*phi + (3*pow(pvecback[pba->index_bg_H],2)*phi_prime/(pba->m_scf*a)) + 
+      //     (2*pvecback[pba->index_bg_H_prime]*phi_prime/(pba->m_scf*pow(a,2))));
 
 
-      phi_prime_s = 6*pow(pvecback[pba->index_bg_H],2)*(3*pow(pvecback[pba->index_bg_H],2)*phi - 2*pvecback[pba->index_bg_H]*phi/a + 
-          4*pvecback[pba->index_bg_H]*phi_prime/a)/(9*pow(pvecback[pba->index_bg_H],4) - 4*(4*pow(pvecback[pba->index_bg_H],2)*pow(pba->m_scf,2) + 
-          pow(pvecback[pba->index_bg_H_prime],2)/pow(a,2)));
+      // phi_s = phi_prime/a/pba->m_scf - phi_prime_c;
 
 
-      // // Original equation - MINE
-      // pvecback_B[pba->index_bi_rho_scf] = (0.5*( pow(pba->m_scf,2)*pow(phi_c,2) + 
-      //     pow(pba->m_scf,2)*pow(phi_s,2) + 0.5*pow(phi_prime_c,2) + 0.5*pow(phi_prime_s,2) - 
-      //     pba->m_scf*phi_c*phi_prime_s + pba->m_scf*phi_s*phi_prime_c))/3.0;
+      // phi_prime_s = factor*(3*pow(pvecback[pba->index_bg_H],2)*phi - 2*pvecback[pba->index_bg_H_prime]*phi/a + 4*pvecback[pba->index_bg_H]*phi_prime/a);
 
 
-      // TriggerCLASS equation
-      pvecback_B[pba->index_bi_rho_scf] = (0.5 * pow(pba->m_scf, 2) * (phi_c * phi_c + phi_s * phi_s + 0.5 * (phi_prime_c * phi_prime_c + 
-          phi_prime_s * phi_prime_s) - phi_c * phi_prime_s + phi_s * phi_prime_c))/3.0;
+      // // TriggerCLASS equation
+      // pvecback_B[pba->index_bi_rho_scf] = (0.5 * pow(pba->m_scf, 2) * (phi_c * phi_c + phi_s * phi_s + 0.5 * (phi_prime_c * phi_prime_c + 
+      //     phi_prime_s * phi_prime_s) - phi_c * phi_prime_s + phi_s * phi_prime_c))/3.0;
 
 
 
@@ -649,6 +632,7 @@ int background_functions(
       printf("phi_prime_s %e \n", phi_prime_s);
 
       printf("New rho %e \n", pvecback_B[pba->index_bi_rho_scf]);
+
 
 
       pvecback_B[pba->index_bi_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.;
