@@ -606,33 +606,38 @@ int background_functions(
 
 
 
-      // With m -> m*H_0 - Without D substituted
+      // // With m -> m*H_0 - Without D substituted
 
-      D_sw = -3*pvecback[pba->index_bg_H]/2 + pvecback[pba->index_bg_H_prime]/(pvecback[pba->index_bg_H]*a); 
-
-
-      factor = 1/(4*pow(pba->m_scf,2)*pow(pba->H0,2) + pow(D_sw,2) + 3*D_sw*pvecback[pba->index_bg_H]);
+      // D_sw = -3*pvecback[pba->index_bg_H]/2 + pvecback[pba->index_bg_H_prime]/(pvecback[pba->index_bg_H]*a); 
 
 
-      phi_c = phi;
+      // factor = 1/(4*pow(pba->m_scf,2)*pow(pba->H0,2) + pow(D_sw,2) + 3*D_sw*pvecback[pba->index_bg_H]);
 
 
-      phi_prime_c = factor*(-3*a*pvecback[pba->index_bg_H]*(2*pow(pba->m_scf,2)*pow(pba->H0,2)*phi + D_sw*phi_prime/a + 
-          3*pvecback[pba->index_bg_H]*phi_prime/a));
+      // phi_c = phi;
 
 
-      phi_s = (phi_prime - phi_prime_c)/(pba->m_scf*pba->H0*a);
+      // phi_prime_c = factor*(-3*a*pvecback[pba->index_bg_H]*(2*pow(pba->m_scf,2)*pow(pba->H0,2)*phi + D_sw*phi_prime/a + 
+      //     3*pvecback[pba->index_bg_H]*phi_prime/a));
 
 
-      phi_prime_s = factor*(3*pvecback[pba->index_bg_H]*a*(D_sw*pba->m_scf*pba->H0*phi - 2*pba->m_scf*pba->H0*phi_prime/a));
+      // phi_s = (phi_prime - phi_prime_c)/(pba->m_scf*pba->H0*a);
 
 
-      pvecback_B[pba->index_bi_rho_scf] = 0.5*(pow(pba->m_scf,2)*pow(pba->H0,2)*(pow(phi_s,2) + pow(phi_c,2)) + 0.5*(pow(phi_prime_c,2) + 
-          pow(phi_prime_s,2))/pow(a,2) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a)/3.0;
+      // phi_prime_s = factor*(3*pvecback[pba->index_bg_H]*a*(D_sw*pba->m_scf*pba->H0*phi - 2*pba->m_scf*pba->H0*phi_prime/a));
+
+
+      // pvecback_B[pba->index_bi_rho_scf] = 0.5*(pow(pba->m_scf,2)*pow(pba->H0,2)*(pow(phi_s,2) + pow(phi_c,2)) + 0.5*(pow(phi_prime_c,2) + 
+      //     pow(phi_prime_s,2))/pow(a,2) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a)/3.0;
 
 
 
 
+
+
+      // pvecback_B[pba->index_bi_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.;
+
+      // printf("Original rho %e \n", pvecback_B[pba->index_bi_rho_scf]);
 
 
 
@@ -678,9 +683,6 @@ int background_functions(
 
 
 
-      pvecback_B[pba->index_bi_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.;
-
-      printf("Original rho %e \n", pvecback_B[pba->index_bi_rho_scf]);
 
 
 
