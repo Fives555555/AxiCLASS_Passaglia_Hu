@@ -4290,7 +4290,7 @@ int input_read_parameters_species(struct file_content * pfc,
                   errmsg);
       if (flag1 == _TRUE_){
         if((strstr(string1,"y") != NULL) || (strstr(string1,"Y") != NULL)){
-           ppt->scales_like_WZDR = _TRUE_;
+          ppt->scales_like_WZDR = _TRUE_;
           class_read_double("a_pivot_DMDE_interaction",ppt->a_pivot_DMDE_interaction);
 
            class_call(parser_read_string(pfc,
