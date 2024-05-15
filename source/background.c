@@ -667,6 +667,8 @@ int background_functions(
           (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
 
 
+      pvecback_B[pba->index_bi_rho_scf] = pvecback_B[pba->index_bi_rho_scf];//*1e10;
+
 
 
       printf("a %e \n", a);
