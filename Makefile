@@ -18,7 +18,7 @@ vpath .base build
 ########################################################
 
 # your C compiler:
-CC       = gcc-12
+CC       = gcc-13
 #CC       = icc
 #CC       = pgcc
 
@@ -38,7 +38,7 @@ OPTFLAG = -O3
 #OPTFLAG = -fast
 
 # your openmp flag (comment for compiling without openmp)
-OMPFLAG   = -fopenmp
+#OMPFLAG   = -fopenmp
 #OMPFLAG   = -mp -mp=nonuma -mp=allcores -g
 #OMPFLAG   = -openmp
 
