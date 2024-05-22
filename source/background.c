@@ -527,6 +527,9 @@ int background_functions(
           (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
 
     pvecback[pba->index_bg_w_scf] =pvecback[pba->index_bg_p_scf]/pvecback[pba->index_bg_rho_scf]; // e.o.s of the scalar field, only used for outputs
+
+    pvecback[pba->index_bg_rho_scf] = pvecback[pba->index_bg_rho_scf_aux];
+
     pvecback_B[pba->index_bi_rho_scf] = pvecback[pba->index_bg_rho_scf];
 
     rho_tot += pvecback[pba->index_bg_rho_scf];
