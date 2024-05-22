@@ -302,7 +302,7 @@ struct background
   int index_bg_dV_scf;        /**< scalar field potential derivative V' */
   int index_bg_ddV_scf;       /**< scalar field potential second derivative V'' */
   int index_bg_rho_scf;       /**< scalar field energy density */
-  int index_bg_rho_scf_aux;       /**< scalar field energy density */
+  // int index_bg_rho_scf_aux;       /**< scalar field energy density */
   int index_bg_Omega_scf;       /**< scalar field fractional energy density */
   int index_bg_p_scf;         /**< scalar field pressure */
   int index_bg_p_prime_scf;         /**< scalar field pressure */
@@ -383,7 +383,7 @@ struct background
   int index_bi_rho_dr;  /**< {B} dr density */
   int index_bi_rho_fld; /**< {B} fluid density */
   int index_bi_rho_scf; /**< {B} scf density */
-  int index_bi_rho_scf_aux; /**< {B} scf density */
+  // int index_bi_rho_scf_aux; /**< {B} scf density */
   int index_bi_phi_scf;       /**< {B} scalar field value */
   int index_bi_phi_prime_scf; /**< {B} scalar field derivative wrt conformal time */
 
