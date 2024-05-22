@@ -513,7 +513,7 @@ int background_functions(
     pvecback[pba->index_bg_p_scf] = (phi_prime*phi_prime/(2*a*a) - V_scf(pba,phi))/3.; // pressure of the scalar field
     pvecback[pba->index_bg_w_scf] =pvecback[pba->index_bg_p_scf]/pvecback[pba->index_bg_rho_scf]; // e.o.s of the scalar field, only used for outputs
     pvecback_B[pba->index_bi_rho_scf] = pvecback[pba->index_bg_rho_scf];
-    printf("Rho before switch %e scale factor %e \n", pvecback_B[pba->index_bi_rho_scf], a);
+    printf("Rho before switch %e scale factor %e Hubble %e \n", pvecback_B[pba->index_bi_rho_scf], pvecback[pba->index_bg_a], pvecback[pba->index_bg_H]);
 
     rho_tot += pvecback[pba->index_bg_rho_scf];
     p_tot += pvecback[pba->index_bg_p_scf];
@@ -552,23 +552,21 @@ int background_functions(
 
       // With m -> m*H_0 - With D substituted
       factor =  6*pow(pvecback[pba->index_bg_H],2)/(9*pow(pvecback[pba->index_bg_H],4) - 
-          4*(4*pow(pvecback[pba->index_bg_H],2)*pow(pba->m_scf*pba->H0,2) + pow(pvecback[pba->index_bg_H_prime],2)/pow(a,2)));
+          4*(4*pow(pvecback[pba->index_bg_H],2)*pow(pba->m_scf*pba->H0,2) + pow(pvecback[pba->index_bg_H_prime],2)/pow(pvecback[pba->index_bg_a],2)));
 
       phi_c = phi;
 
-      phi_prime_c = factor*a*pba->m_scf*pba->H0*(4*pvecback[pba->index_bg_H]*pba->m_scf*pba->H0*phi + 
-          (3*pow(pvecback[pba->index_bg_H],2)*phi_prime/(pba->m_scf*pba->H0*a)) + 
-          (2*pvecback[pba->index_bg_H_prime]*phi_prime/(pba->m_scf*pba->H0*pow(a,2))));
+      phi_prime_c = factor*pvecback[pba->index_bg_a]*pba->m_scf*pba->H0*(4*pvecback[pba->index_bg_H]*pba->m_scf*pba->H0*phi + 
+          (3*pow(pvecback[pba->index_bg_H],2)*phi_prime/(pba->m_scf*pba->H0*pvecback[pba->index_bg_a])) + 
+          (2*pvecback[pba->index_bg_H_prime]*phi_prime/(pba->m_scf*pba->H0*pow(pvecback[pba->index_bg_a],2))));
 
-      phi_s = (phi_prime - phi_prime_c)/(a*pba->m_scf*pba->H0);
+      phi_s = (phi_prime - phi_prime_c)/(pvecback[pba->index_bg_a]*pba->m_scf*pba->H0);
 
-      phi_prime_s = factor*a*pba->m_scf*pba->H0*(3*pow(pvecback[pba->index_bg_H],2)*phi - 2*pvecback[pba->index_bg_H_prime]*phi/a + 
-          4*pvecback[pba->index_bg_H]*phi_prime/a);
+      phi_prime_s = factor*pvecback[pba->index_bg_a]*pba->m_scf*pba->H0*(3*pow(pvecback[pba->index_bg_H],2)*phi - 2*pvecback[pba->index_bg_H_prime]*phi/pvecback[pba->index_bg_a] + 
+          4*pvecback[pba->index_bg_H]*phi_prime/pvecback[pba->index_bg_a]);
 
       pvecback_B[pba->index_bi_rho_scf] = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) + 
-          (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
-
-      // pvecback_B[pba->index_bi_rho_scf] = pvecback_B[pba->index_bi_rho_scf];//*1e10;
+          (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(pvecback[pba->index_bg_a],2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/pvecback[pba->index_bg_a]))/3.0;
 
 
       printf("phi %e \n", phi);
@@ -578,7 +576,7 @@ int background_functions(
       printf("phi_c_prime %e \n", phi_prime_c/(pba->m_scf*pba->H0*a));
       printf("phi_s_prime %e \n", phi_prime_s/(pba->m_scf*pba->H0*a));
 
-      printf("New rho %e scale factor %e \n", pvecback_B[pba->index_bi_rho_scf], a);
+      printf("New rho %e scale factor %e Hubble %e \n", pvecback_B[pba->index_bi_rho_scf], pvecback[pba->index_bg_a], pvecback[pba->index_bg_H]);
       
 
     }
@@ -587,7 +585,7 @@ int background_functions(
     //pvecback[pba->index_bg_rho_scf] = pba->Omega0_scf * pow(pba->H0,2) / pow(a_rel,3);
     
     pvecback[pba->index_bg_rho_scf] = pvecback_B[pba->index_bi_rho_scf];
-    printf("Rho after switch %e Rho integration %e scale factor %e \n", pvecback[pba->index_bg_rho_scf], pvecback_B[pba->index_bi_rho_scf], a);
+    printf("Rho after switch %e Rho integration %e scale factor %e Hubble %e \n", pvecback[pba->index_bg_rho_scf], pvecback_B[pba->index_bi_rho_scf], pvecback[pba->index_bg_a], pvecback[pba->index_bg_H]);
     pvecback[pba->index_bg_p_scf] = (3/2)*pow((pba->m_scf*pba->H0/pvecback[pba->index_bg_H]),-2)*pvecback_B[pba->index_bi_rho_scf];
 
 
@@ -2335,7 +2333,7 @@ int background_solve(
   /* evolvers */
   extern int evolver_rk();
   extern int evolver_ndf15();
-  int (*generic_evolver)() = evolver_ndf15;
+  int (*generic_evolver)() = evolver_ndf15; // Choose suitable evolver
 
   /* initial and final loga values */
   double loga_ini, loga_final;
@@ -3345,7 +3343,7 @@ int background_derivs(
     // if(pba->background_verbose > 11) printf("Evolving scalar field using KG equation. phi %e phi prime %e \n", y[pba->index_bi_phi_scf],dy[pba->index_bi_phi_scf]  );
     }
     else if(pba->scf_kg_eq == _FALSE_) {
-    printf("Rho evolution, %e Rho bg %e scale factor %e \n", y[pba->index_bi_rho_scf], pvecback[pba->index_bg_rho_scf], a);
+    printf("Rho evolution, %e Rho bg %e scale factor %e Hubble %e \n", y[pba->index_bi_rho_scf], pvecback[pba->index_bg_rho_scf], pvecback[pba->index_bg_a], pvecback[pba->index_bg_H]);
     dy[pba->index_bi_rho_scf] = -3.*y[pba->index_bi_rho_scf]*(1+(3/2)*pow((pba->m_scf*pba->H0/H),-2));
     dy[pba->index_bi_phi_scf] = 0;
     dy[pba->index_bi_phi_prime_scf] = 0;
