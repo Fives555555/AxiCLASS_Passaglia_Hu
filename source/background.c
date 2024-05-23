@@ -571,7 +571,7 @@ int background_functions(
         pvecback_B[pba->index_bi_rho_scf_aux] = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
           (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
         pvecback_B[pba->index_bi_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback_B[pba->index_bi_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback_B[pba->index_bi_rho_scf_aux];
-          
+
     }
     /****THE REAL QUANTITIES ARE ASSIGNED HERE****/
     //pvecback[pba->index_bg_rho_scf] = pba->Omega0_scf * pow(pba->H0,2) / pow(a_rel,3);
