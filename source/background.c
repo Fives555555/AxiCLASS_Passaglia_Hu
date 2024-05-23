@@ -523,12 +523,12 @@ int background_functions(
           (2*Hprime*phi_prime/(pba->m_scf*pba->H0*pow(a,2))));
     phi_s = (phi_prime - phi_prime_c)/(a*pba->m_scf*pba->H0);
     phi_prime_s = factor*a*pba->m_scf*pba->H0*(3*pow(H,2)*phi - 2*Hprime*phi/a + 4*H*phi_prime/a);
-    //pvecback[pba->index_bg_rho_scf_aux] = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
-    //      (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
-    //pvecback[pba->index_bg_rho_scf] = pvecback[pba->index_bg_rho_scf_aux];
-
-    pvecback[pba->index_bg_rho_scf] = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
+    pvecback[pba->index_bg_rho_scf_aux] = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
           (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
+
+    pvecback[pba->index_bg_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback[pba->index_bg_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback[pba->index_bg_rho_scf_aux];
+
+    printf("KG rho %e %e %e %e \n", a, pvecback[pba->index_bg_rho_scf], pvecback[pba->index_bg_rho_scf_aux], pba->m_scf*pba->H0/H);
 
     pvecback_B[pba->index_bi_rho_scf] = pvecback[pba->index_bg_rho_scf];
 
@@ -553,10 +553,12 @@ int background_functions(
     pvecback[pba->index_bg_dV_scf] = dV_scf(pba,phi); // dV_scf(pba,phi); //potential' as function of phi
     pvecback[pba->index_bg_ddV_scf] = ddV_scf(pba,phi); // ddV_scf(pba,phi); //potential'' as function of phi
 
+    //pvecback[pba->index_bg_rho_scf] = pvecback[pba->index_bg_rho_scf_aux];
+
     if(pba->kg_fld_switch == _FALSE_){
       pba->kg_fld_switch = _TRUE_;
       //if we just switched from KG to fluid, we need to correctly initialize the density.
-      //pvecback_B[pba->index_bi_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.;
+        pvecback_B[pba->index_bi_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.;
         H = sqrt(rho_tot-pba->K/a/a);
         Hprime = - (3./2.) * (rho_tot + p_tot) * a + pba->K/a;
         factor = 6*pow(H,2)/(9*pow(H,4) - 4*(4*pow(H,2)*pow(pba->m_scf*pba->H0,2) + pow(Hprime,2)/pow(a,2)));
@@ -566,8 +568,10 @@ int background_functions(
               (2*Hprime*phi_prime/(pba->m_scf*pba->H0*pow(a,2))));
         phi_s = (phi_prime - phi_prime_c)/(a*pba->m_scf*pba->H0);
         phi_prime_s = factor*a*pba->m_scf*pba->H0*(3*pow(H,2)*phi - 2*Hprime*phi/a + 4*H*phi_prime/a);
-        pvecback_B[pba->index_bi_rho_scf] = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
+        pvecback_B[pba->index_bi_rho_scf_aux] = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
           (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
+        pvecback_B[pba->index_bi_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback_B[pba->index_bi_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback_B[pba->index_bi_rho_scf_aux];
+          
     }
     /****THE REAL QUANTITIES ARE ASSIGNED HERE****/
     //pvecback[pba->index_bg_rho_scf] = pba->Omega0_scf * pow(pba->H0,2) / pow(a_rel,3);
@@ -1469,6 +1473,7 @@ int background_indices(
   class_define_index(pba->index_bg_dV_scf,pba->has_scf,index_bg,1);
   class_define_index(pba->index_bg_ddV_scf,pba->has_scf,index_bg,1);
   class_define_index(pba->index_bg_rho_scf,pba->has_scf,index_bg,1);
+  class_define_index(pba->index_bg_rho_scf_aux,pba->has_scf,index_bg,1);
   class_define_index(pba->index_bg_Omega_scf,pba->has_scf,index_bg,1);
   class_define_index(pba->index_bg_p_scf,pba->has_scf,index_bg,1);
   class_define_index(pba->index_bg_p_prime_scf,pba->has_scf,index_bg,1);
@@ -1574,6 +1579,7 @@ int background_indices(
   class_define_index(pba->index_bi_phi_prime_scf,pba->has_scf,index_bi,1);
   /* -> energy density in scf */ //necessary when we switch to the fluid equation
   class_define_index(pba->index_bi_rho_scf,pba->has_scf,index_bi,1);
+  class_define_index(pba->index_bi_rho_scf_aux,pba->has_scf,index_bi,1);
 
 
   /* End of {B} variables */
