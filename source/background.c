@@ -588,8 +588,6 @@ int background_functions(
     rho_r += pvecback[pba->index_bg_rho_idr];
   }
 
-
-
   //printf("Scalar field? %f \n", pba->has_scf);//print_trigger
   /* Scalar field */
   if (pba->has_scf == _TRUE_ && pba->scf_kg_eq == _TRUE_) {
@@ -684,7 +682,6 @@ int background_functions(
       pvecback[pba->index_bg_w_scf] = pba->w_scf;
     }
 
-
       rho_tot += pvecback[pba->index_bg_rho_scf];
       p_tot += pvecback[pba->index_bg_p_scf];
       rho_r += 3.*pvecback[pba->index_bg_p_scf]; //field pressure contributes radiation
@@ -695,9 +692,6 @@ int background_functions(
   }
   //printf("Scalar field? %f \n", pba->has_scf); //print_trigger
 
-
-
-
   /** - compute expansion rate H from Friedmann equation: this is the
       only place where the Friedmann equation is assumed. Remember
       that densities are all expressed in units of \f$ [3c^2/8\pi G] \f$, ie
@@ -706,17 +700,6 @@ int background_functions(
 
   /** - compute derivative of H with respect to conformal time */
   pvecback[pba->index_bg_H_prime] = - (3./2.) * (rho_tot + p_tot) * a + pba->K/a;
-
-
-
-
-
-
-
-
-
-
-
 
   if(pba->has_scf == _TRUE_){
     pvecback[pba->index_bg_Omega_scf] = pvecback[pba->index_bg_rho_scf] / rho_tot;
