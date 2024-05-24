@@ -420,6 +420,7 @@ int background_functions(
   double factor;
   double H;
   double Hprime;
+  double weight;
   /**INITIALISE ADDITIONAL LOCAL VARIABLES*/
   D_sw = 0.;
   phi_c = 0.;
@@ -429,6 +430,7 @@ int background_functions(
   factor = 0.;
   H = 0.;
   Hprime = 0.;
+  weight = 0.;
 
 
   /** - initialize local variables */
@@ -495,9 +497,9 @@ int background_functions(
     rho_r += pvecback[pba->index_bg_rho_dr];
   }
 
-    //printf("Scalar field? %f \n", pba->has_scf);//print_trigger
-    /* Scalar field */
-    if (pba->has_scf == _TRUE_ && pba->scf_kg_eq == _TRUE_) {
+  //printf("Scalar field? %f \n", pba->has_scf);//print_trigger
+  /* Scalar field */
+  if (pba->has_scf == _TRUE_ && pba->scf_kg_eq == _TRUE_) {
 
     pba->kg_fld_switch = _FALSE_;
     //printf("Inside scf table update\n"); //print_trigger
@@ -514,8 +516,8 @@ int background_functions(
     pvecback[pba->index_bg_p_scf] = (phi_prime*phi_prime/(2*a*a) - V_scf(pba,phi))/3.; // pressure of the scalar field
     pvecback[pba->index_bg_w_scf] =pvecback[pba->index_bg_p_scf]/pvecback[pba->index_bg_rho_scf]; // e.o.s of the scalar field, only used for outputs
 
-    H = sqrt(rho_tot-pba->K/a/a);
-    Hprime = - (3./2.) * (rho_tot + p_tot) * a + pba->K/a;
+    H = sqrt(rho_tot + pvecback[pba->index_bg_rho_scf] - pba->K/a/a);
+    Hprime = - (3./2.) * (rho_tot + pvecback[pba->index_bg_rho_scf] + p_tot - pvecback[pba->index_bg_p_scf]) * a + pba->K/a;
     factor = 6*pow(H,2)/(9*pow(H,4) - 4*(4*pow(H,2)*pow(pba->m_scf*pba->H0,2) + pow(Hprime,2)/pow(a,2)));
     phi_c = phi;
     phi_prime_c = factor*a*pba->m_scf*pba->H0*(4*H*pba->m_scf*pba->H0*phi +
@@ -525,10 +527,10 @@ int background_functions(
     phi_prime_s = factor*a*pba->m_scf*pba->H0*(3*pow(H,2)*phi - 2*Hprime*phi/a + 4*H*phi_prime/a);
     pvecback[pba->index_bg_rho_scf_aux] = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
           (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
+    weight = 0.5 - 0.5 * tanh((pba->m_scf*pba->H0/H - 0.8 * pba->threshold_scf_fluid_m_over_H));
+    pvecback[pba->index_bg_rho_scf] = weight * pvecback[pba->index_bg_rho_scf] + (1 - weight) * pvecback[pba->index_bg_rho_scf_aux];
 
-    pvecback[pba->index_bg_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback[pba->index_bg_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback[pba->index_bg_rho_scf_aux];
-
-    printf("KG rho %e %e %e %e \n", a, pvecback[pba->index_bg_rho_scf], pvecback[pba->index_bg_rho_scf_aux], pba->m_scf*pba->H0/H);
+    printf("KG rho %e %e %e %e %e %e %e\n", a, pvecback[pba->index_bg_rho_scf], pvecback[pba->index_bg_rho_scf_aux], pba->m_scf*pba->H0/H, weight, H, pvecback[pba->index_bg_H]);
 
     pvecback_B[pba->index_bi_rho_scf] = pvecback[pba->index_bg_rho_scf];
 
@@ -570,7 +572,10 @@ int background_functions(
         phi_prime_s = factor*a*pba->m_scf*pba->H0*(3*pow(H,2)*phi - 2*Hprime*phi/a + 4*H*phi_prime/a);
         pvecback_B[pba->index_bi_rho_scf_aux] = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
           (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
-        pvecback_B[pba->index_bi_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback_B[pba->index_bi_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback_B[pba->index_bi_rho_scf_aux];
+        weight = 0.5 - 0.5 * tanh((pba->m_scf*pba->H0/H - 0.8 * pba->threshold_scf_fluid_m_over_H));
+        pvecback_B[pba->index_bi_rho_scf] = weight * pvecback_B[pba->index_bi_rho_scf] + (1 - weight) * pvecback_B[pba->index_bi_rho_scf_aux];
+
+        printf("Switch %e %e\n", a, pvecback_B[pba->index_bi_rho_scf]);
 
     }
     /****THE REAL QUANTITIES ARE ASSIGNED HERE****/
@@ -697,6 +702,18 @@ int background_functions(
 
   /** - compute derivative of H with respect to conformal time */
   pvecback[pba->index_bg_H_prime] = - (3./2.) * (rho_tot + p_tot) * a + pba->K/a;
+
+
+
+
+
+
+
+
+
+
+
+
 
   if(pba->has_scf == _TRUE_){
     pvecback[pba->index_bg_Omega_scf] = pvecback[pba->index_bg_rho_scf] / rho_tot;
