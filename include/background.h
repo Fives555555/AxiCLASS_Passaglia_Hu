@@ -204,6 +204,8 @@ struct background
   short scf_has_perturbations; /** do scalar field perts */
   short loop_over_background_for_closure_relation; /** do we want to loop over background?*/
   short include_scf_in_growth_factor; /** do we want to include the scf cntribution to the growth factor? useful for axion for instance. default=false*/
+  double scf_smoothing_midpoint;
+  double scf_smoothing_width;
 
   double precision_loop_over_background;
   //double scf_lambda; /**< \f$ \lambda \f$ : scalar field exponential potential slope */

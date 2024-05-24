@@ -420,6 +420,9 @@ int background_functions(
   double factor;
   double H;
   double Hprime;
+  double weight;
+  double t;
+  double num_widths;
   /**INITIALISE ADDITIONAL LOCAL VARIABLES*/
   D_sw = 0.;
   phi_c = 0.;
@@ -429,6 +432,10 @@ int background_functions(
   factor = 0.;
   H = 0.;
   Hprime = 0.;
+  weight = 1.;
+  t = 0.;
+  num_widths = 15.;
+  pba->scf_smoothing_width = 1.;
 
 
   /** - initialize local variables */
@@ -526,9 +533,22 @@ int background_functions(
     pvecback[pba->index_bg_rho_scf_aux] = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
           (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
 
-    pvecback[pba->index_bg_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback[pba->index_bg_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback[pba->index_bg_rho_scf_aux];
+    // pvecback[pba->index_bg_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback[pba->index_bg_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback[pba->index_bg_rho_scf_aux];
 
-    printf("KG rho %e %e %e %e \n", a, pvecback[pba->index_bg_rho_scf], pvecback[pba->index_bg_rho_scf_aux], pba->m_scf*pba->H0/H);
+    pba->scf_smoothing_width /= pba->m_scf;
+
+    t = pvecback_B[pba->index_bi_time];
+
+    pba->scf_smoothing_midpoint = t + num_widths * pba->scf_smoothing_width;
+
+    weight = (1. + tanh((t - pba->scf_smoothing_midpoint) / pba->scf_smoothing_width)) / 2.;
+
+    pvecback[pba->index_bg_rho_scf] = ((1. - weight) * pvecback[pba->index_bg_rho_scf]+ weight * pvecback[pba->index_bg_rho_scf_aux]);
+
+    printf("Before weight %e, a %e \n", weight, a);
+
+
+    // printf("KG rho %e %e %e %e \n", a, pvecback[pba->index_bg_rho_scf], pvecback[pba->index_bg_rho_scf_aux], pba->m_scf*pba->H0/H);
 
     pvecback_B[pba->index_bi_rho_scf] = pvecback[pba->index_bg_rho_scf];
 
@@ -570,7 +590,21 @@ int background_functions(
         phi_prime_s = factor*a*pba->m_scf*pba->H0*(3*pow(H,2)*phi - 2*Hprime*phi/a + 4*H*phi_prime/a);
         pvecback_B[pba->index_bi_rho_scf_aux] = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
           (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
-        pvecback_B[pba->index_bi_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback_B[pba->index_bi_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback_B[pba->index_bi_rho_scf_aux];
+
+
+        pba->scf_smoothing_width /= pba->m_scf;
+
+        t = pvecback_B[pba->index_bi_time];
+
+        pba->scf_smoothing_midpoint = t + num_widths * pba->scf_smoothing_width;
+
+        weight = (1. + tanh((t - pba->scf_smoothing_midpoint) / pba->scf_smoothing_width)) / 2.;
+
+        pvecback[pba->index_bi_rho_scf] = ((1. - weight) * pvecback[pba->index_bi_rho_scf]+ weight * pvecback[pba->index_bi_rho_scf_aux]);
+
+        printf("After weight %e, a %e \n", weight, a);
+
+        // pvecback_B[pba->index_bi_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback_B[pba->index_bi_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback_B[pba->index_bi_rho_scf_aux];
 
     }
     /****THE REAL QUANTITIES ARE ASSIGNED HERE****/
@@ -3326,7 +3360,7 @@ int background_derivs(
     // if(pba->background_verbose > 11) printf("Evolving scalar field using KG equation. phi %e phi prime %e \n", y[pba->index_bi_phi_scf],dy[pba->index_bi_phi_scf]  );
     }
     else if(pba->scf_kg_eq == _FALSE_) {
-    printf("Evolution rho %e %e %e \n", a, y[pba->index_bi_rho_scf], pba->w_scf);
+    // printf("Evolution rho %e %e %e \n", a, y[pba->index_bi_rho_scf], pba->w_scf);
     dy[pba->index_bi_rho_scf] = -3.*y[pba->index_bi_rho_scf]*(1+pba->w_scf);
     dy[pba->index_bi_phi_scf] = 0;
     dy[pba->index_bi_phi_prime_scf] = 0;
