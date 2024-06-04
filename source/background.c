@@ -421,8 +421,6 @@ int background_functions(
   double H;
   double Hprime;
   double weight;
-  double t;
-  double num_widths;
   /**INITIALISE ADDITIONAL LOCAL VARIABLES*/
   D_sw = 0.;
   phi_c = 0.;
@@ -433,9 +431,9 @@ int background_functions(
   H = 0.;
   Hprime = 0.;
   weight = 1.;
-  t = 0.;
-  num_widths = 15.;
-  pba->scf_smoothing_width = 1.;
+
+ 
+  
 
 
   /** - initialize local variables */
@@ -533,20 +531,24 @@ int background_functions(
     pvecback[pba->index_bg_rho_scf_aux] = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
           (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
 
+
+
     // pvecback[pba->index_bg_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback[pba->index_bg_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback[pba->index_bg_rho_scf_aux];
 
-    pba->scf_smoothing_width /= pba->m_scf;
 
-    t = pvecback_B[pba->index_bi_time];
 
-    pba->scf_smoothing_midpoint = t + num_widths * pba->scf_smoothing_width;
+    weight = 0.5 - 0.5 * tanh(1.5*(pba->m_scf*pba->H0/H - 0.8 * pba->threshold_scf_fluid_m_over_H));
 
-    weight = (1. + tanh((t - pba->scf_smoothing_midpoint) / pba->scf_smoothing_width)) / 2.;
 
-    pvecback[pba->index_bg_rho_scf] = ((1. - weight) * pvecback[pba->index_bg_rho_scf]+ weight * pvecback[pba->index_bg_rho_scf_aux]);
+    // weight = 0.5 - 0.5 * tanh((pba->m_scf*pba->H0/H - 0.8 * pba->threshold_scf_fluid_m_over_H));
 
-    printf("Before weight %e, a %e \n", weight, a);
 
+
+
+    pvecback[pba->index_bg_rho_scf] = ((weight) * pvecback[pba->index_bg_rho_scf]+ (1 - weight) * pvecback[pba->index_bg_rho_scf_aux]);
+
+    // printf("Before weight %e, a %e \n", weight, a);
+    // printf("Before Aux rho %e, Rho %e\n", pvecback[pba->index_bg_rho_scf_aux], pvecback[pba->index_bg_rho_scf]);
 
     // printf("KG rho %e %e %e %e \n", a, pvecback[pba->index_bg_rho_scf], pvecback[pba->index_bg_rho_scf_aux], pba->m_scf*pba->H0/H);
 
@@ -592,17 +594,17 @@ int background_functions(
           (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
 
 
-        pba->scf_smoothing_width /= pba->m_scf;
+        weight = 0.5 - 0.5 * tanh(1.5*(pba->m_scf*pba->H0/H - 0.8 * pba->threshold_scf_fluid_m_over_H));
 
-        t = pvecback_B[pba->index_bi_time];
 
-        pba->scf_smoothing_midpoint = t + num_widths * pba->scf_smoothing_width;
+        // weight = 0.5 - 0.5 * tanh((pba->m_scf*pba->H0/H - 0.8 * pba->threshold_scf_fluid_m_over_H));
 
-        weight = (1. + tanh((t - pba->scf_smoothing_midpoint) / pba->scf_smoothing_width)) / 2.;
 
-        pvecback[pba->index_bi_rho_scf] = ((1. - weight) * pvecback[pba->index_bi_rho_scf]+ weight * pvecback[pba->index_bi_rho_scf_aux]);
 
-        printf("After weight %e, a %e \n", weight, a);
+        pvecback[pba->index_bi_rho_scf] = ((weight) * pvecback[pba->index_bi_rho_scf]+ (1 - weight) * pvecback[pba->index_bi_rho_scf_aux]);
+
+        // printf("After weight %e, a %e \n", weight, a);
+        // printf("After Aux rho %e, Rho %e\n", pvecback[pba->index_bg_rho_scf_aux], pvecback[pba->index_bi_rho_scf]);
 
         // pvecback_B[pba->index_bi_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback_B[pba->index_bi_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback_B[pba->index_bi_rho_scf_aux];
 
@@ -611,13 +613,16 @@ int background_functions(
     //pvecback[pba->index_bg_rho_scf] = pba->Omega0_scf * pow(pba->H0,2) / pow(a_rel,3);
 
     pvecback[pba->index_bg_rho_scf] = pvecback_B[pba->index_bi_rho_scf];
-    pvecback[pba->index_bg_p_scf] = pba->w_scf*pvecback_B[pba->index_bi_rho_scf];
+    // pvecback[pba->index_bg_p_scf] = pba->w_scf*pvecback_B[pba->index_bi_rho_scf];
+    pvecback[pba->index_bg_p_scf] = 1.5*pow(H/pba->m_scf,2)*pvecback_B[pba->index_bi_rho_scf];
     if(pba->log10_axion_ac > -30){
       /* approximate fluid equation of state for the axion */
-      pvecback[pba->index_bg_w_scf] = (1+pba->w_scf)/(1+pow(pba->a_c/a,3*(1+pba->w_scf)))-1;
+      // pvecback[pba->index_bg_w_scf] = (1+pba->w_scf)/(1+pow(pba->a_c/a,3*(1+pba->w_scf)))-1;
+      pvecback[pba->index_bg_w_scf] = 1.5*pow(H/(pba->m_scf*pba->H0),2);
     }
     else{
-      pvecback[pba->index_bg_w_scf] = pba->w_scf;
+      // pvecback[pba->index_bg_w_scf] = pba->w_scf;
+      pvecback[pba->index_bg_w_scf] = 1.5*pow(H/(pba->m_scf*pba->H0),2);
     }
 
 
@@ -3360,8 +3365,9 @@ int background_derivs(
     // if(pba->background_verbose > 11) printf("Evolving scalar field using KG equation. phi %e phi prime %e \n", y[pba->index_bi_phi_scf],dy[pba->index_bi_phi_scf]  );
     }
     else if(pba->scf_kg_eq == _FALSE_) {
-    // printf("Evolution rho %e %e %e \n", a, y[pba->index_bi_rho_scf], pba->w_scf);
-    dy[pba->index_bi_rho_scf] = -3.*y[pba->index_bi_rho_scf]*(1+pba->w_scf);
+    // printf("Evolution a %e, Rho %e, w %e \n", a, y[pba->index_bi_rho_scf], pba->w_scf);
+    // dy[pba->index_bi_rho_scf] = -3.*y[pba->index_bi_rho_scf]*(1+pba->w_scf);
+    dy[pba->index_bi_rho_scf] = -3.*y[pba->index_bi_rho_scf]*(1 + 1.5*pow(H/(pba->m_scf*pba->H0),2));
     dy[pba->index_bi_phi_scf] = 0;
     dy[pba->index_bi_phi_prime_scf] = 0;
     if(pba->background_verbose > 11) printf("Evolving scalar field using fluid equation, rho %e rho prime %e.\n",y[pba->index_bi_rho_scf],dy[pba->index_bi_rho_scf]);
