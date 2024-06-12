@@ -613,7 +613,8 @@ int background_functions(
       // pvecback_B[pba->index_bi_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback_B[pba->index_bi_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback_B[pba->index_bi_rho_scf_aux];
 
     }
-    elseif(pba->kg_fld_switch == _FALSE_ && pba->scf_evolve_as_fluid_orig == _TRUE_);{
+    else if(pba->kg_fld_switch == _FALSE_ && pba->scf_evolve_as_fluid_orig == _TRUE_){
+      pba->kg_fld_switch = _TRUE_;
        //if we just switched from KG to fluid, we need to correctly initialize the density.
       pvecback_B[pba->index_bi_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.;
     }

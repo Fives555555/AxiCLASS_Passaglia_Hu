@@ -4484,7 +4484,7 @@ class_call(parser_read_double(pfc,"Omega_scf_shoot_fa",&param4,&flag4,errmsg),
     }
     else {
       pba->scf_evolve_as_fluid_orig = _FALSE_;
-
+    }
 
     class_call(parser_read_string(pfc,
                                   "use_big_theta_scf",
