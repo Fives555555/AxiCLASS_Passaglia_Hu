@@ -519,33 +519,38 @@ int background_functions(
     pvecback[pba->index_bg_p_scf] = (phi_prime*phi_prime/(2*a*a) - V_scf(pba,phi))/3.; // pressure of the scalar field
     pvecback[pba->index_bg_w_scf] = pvecback[pba->index_bg_p_scf]/pvecback[pba->index_bg_rho_scf]; // e.o.s of the scalar field, only used for outputs
 
-    H = sqrt(rho_tot-pba->K/a/a);
-    Hprime = - (3./2.) * (rho_tot + p_tot) * a + pba->K/a;
-    factor = 6*pow(H,2)/(9*pow(H,4) - 4*(4*pow(H,2)*pow(pba->m_scf*pba->H0,2) + pow(Hprime,2)/pow(a,2)));
-    phi_c = phi;
-    phi_prime_c = factor*a*pba->m_scf*pba->H0*(4*H*pba->m_scf*pba->H0*phi +
-          (3*pow(H,2)*phi_prime/(pba->m_scf*pba->H0*a)) +
-          (2*Hprime*phi_prime/(pba->m_scf*pba->H0*pow(a,2))));
-    phi_s = (phi_prime - phi_prime_c)/(a*pba->m_scf*pba->H0);
-    phi_prime_s = factor*a*pba->m_scf*pba->H0*(3*pow(H,2)*phi - 2*Hprime*phi/a + 4*H*phi_prime/a);
-    pvecback[pba->index_bg_rho_scf_aux] = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
-          (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
+
+    if(pba->scf_evolve_as_fluid == _TRUE_){
+      H = sqrt(rho_tot-pba->K/a/a);
+      Hprime = - (3./2.) * (rho_tot + p_tot) * a + pba->K/a;
+      factor = 6*pow(H,2)/(9*pow(H,4) - 4*(4*pow(H,2)*pow(pba->m_scf*pba->H0,2) + pow(Hprime,2)/pow(a,2)));
+      phi_c = phi;
+      phi_prime_c = factor*a*pba->m_scf*pba->H0*(4*H*pba->m_scf*pba->H0*phi +
+            (3*pow(H,2)*phi_prime/(pba->m_scf*pba->H0*a)) +
+            (2*Hprime*phi_prime/(pba->m_scf*pba->H0*pow(a,2))));
+      phi_s = (phi_prime - phi_prime_c)/(a*pba->m_scf*pba->H0);
+      phi_prime_s = factor*a*pba->m_scf*pba->H0*(3*pow(H,2)*phi - 2*Hprime*phi/a + 4*H*phi_prime/a);
+      pvecback[pba->index_bg_rho_scf_aux] = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
+            (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
 
 
 
-    // pvecback[pba->index_bg_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback[pba->index_bg_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback[pba->index_bg_rho_scf_aux];
+      // pvecback[pba->index_bg_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback[pba->index_bg_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback[pba->index_bg_rho_scf_aux];
 
 
 
-    weight = 0.5 - 0.5 * tanh(1.5*(pba->m_scf*pba->H0/H - 0.8 * pba->threshold_scf_fluid_m_over_H));
+      weight = 0.5 - 0.5 * tanh(1.5*(pba->m_scf*pba->H0/H - 0.8 * pba->threshold_scf_fluid_m_over_H));
 
 
-    // weight = 0.5 - 0.5 * tanh((pba->m_scf*pba->H0/H - 0.8 * pba->threshold_scf_fluid_m_over_H));
+      // weight = 0.5 - 0.5 * tanh((pba->m_scf*pba->H0/H - 0.8 * pba->threshold_scf_fluid_m_over_H));
 
 
-    pvecback[pba->index_bg_rho_scf] = ((weight) * pvecback[pba->index_bg_rho_scf] + (1 - weight) * pvecback[pba->index_bg_rho_scf_aux]);
-    pvecback[pba->index_bg_p_scf] = (weight) * pvecback[pba->index_bg_w_scf] * pvecback[pba->index_bg_rho_scf] + (1 - weight) * pvecback[pba->index_bg_w_scf] * pvecback[pba->index_bg_rho_scf_aux];
+      pvecback[pba->index_bg_rho_scf] = ((weight) * pvecback[pba->index_bg_rho_scf] + (1 - weight) * pvecback[pba->index_bg_rho_scf_aux]);
+      pvecback[pba->index_bg_p_scf] = (weight) * pvecback[pba->index_bg_w_scf] * pvecback[pba->index_bg_rho_scf] + (1 - weight) * pvecback[pba->index_bg_w_scf] * pvecback[pba->index_bg_rho_scf_aux];
 
+    }
+
+    
     // printf("Before weight %e, a %e \n", weight, a);
     // printf("Before Aux rho %e, Rho %e\n", pvecback[pba->index_bg_rho_scf_aux], pvecback[pba->index_bg_rho_scf]);
 
@@ -576,37 +581,41 @@ int background_functions(
 
     //pvecback[pba->index_bg_rho_scf] = pvecback[pba->index_bg_rho_scf_aux];
 
-    if(pba->kg_fld_switch == _FALSE_){
+    if(pba->kg_fld_switch == _FALSE_ && pba->scf_evolve_as_fluid == _TRUE_){
       pba->kg_fld_switch = _TRUE_;
       //if we just switched from KG to fluid, we need to correctly initialize the density.
-        pvecback_B[pba->index_bi_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.;
-        H = sqrt(rho_tot-pba->K/a/a);
-        Hprime = - (3./2.) * (rho_tot + p_tot) * a + pba->K/a;
-        factor = 6*pow(H,2)/(9*pow(H,4) - 4*(4*pow(H,2)*pow(pba->m_scf*pba->H0,2) + pow(Hprime,2)/pow(a,2)));
-        phi_c = phi;
-        phi_prime_c = factor*a*pba->m_scf*pba->H0*(4*H*pba->m_scf*pba->H0*phi +
-              (3*pow(H,2)*phi_prime/(pba->m_scf*pba->H0*a)) +
-              (2*Hprime*phi_prime/(pba->m_scf*pba->H0*pow(a,2))));
-        phi_s = (phi_prime - phi_prime_c)/(a*pba->m_scf*pba->H0);
-        phi_prime_s = factor*a*pba->m_scf*pba->H0*(3*pow(H,2)*phi - 2*Hprime*phi/a + 4*H*phi_prime/a);
-        pvecback_B[pba->index_bi_rho_scf_aux] = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
-          (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
+      pvecback_B[pba->index_bi_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.;
+      H = sqrt(rho_tot-pba->K/a/a);
+      Hprime = - (3./2.) * (rho_tot + p_tot) * a + pba->K/a;
+      factor = 6*pow(H,2)/(9*pow(H,4) - 4*(4*pow(H,2)*pow(pba->m_scf*pba->H0,2) + pow(Hprime,2)/pow(a,2)));
+      phi_c = phi;
+      phi_prime_c = factor*a*pba->m_scf*pba->H0*(4*H*pba->m_scf*pba->H0*phi +
+            (3*pow(H,2)*phi_prime/(pba->m_scf*pba->H0*a)) +
+            (2*Hprime*phi_prime/(pba->m_scf*pba->H0*pow(a,2))));
+      phi_s = (phi_prime - phi_prime_c)/(a*pba->m_scf*pba->H0);
+      phi_prime_s = factor*a*pba->m_scf*pba->H0*(3*pow(H,2)*phi - 2*Hprime*phi/a + 4*H*phi_prime/a);
+      pvecback_B[pba->index_bi_rho_scf_aux] = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
+        (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
 
 
-        weight = 0.5 - 0.5 * tanh(1.5*(pba->m_scf*pba->H0/H - 0.8 * pba->threshold_scf_fluid_m_over_H));
+      weight = 0.5 - 0.5 * tanh(1.5*(pba->m_scf*pba->H0/H - 0.8 * pba->threshold_scf_fluid_m_over_H));
 
 
-        // weight = 0.5 - 0.5 * tanh((pba->m_scf*pba->H0/H - 0.8 * pba->threshold_scf_fluid_m_over_H));
+      // weight = 0.5 - 0.5 * tanh((pba->m_scf*pba->H0/H - 0.8 * pba->threshold_scf_fluid_m_over_H));
 
 
 
-        pvecback[pba->index_bi_rho_scf] = ((weight) * pvecback[pba->index_bi_rho_scf]+ (1 - weight) * pvecback[pba->index_bi_rho_scf_aux]);
+      pvecback[pba->index_bi_rho_scf] = ((weight) * pvecback[pba->index_bi_rho_scf]+ (1 - weight) * pvecback[pba->index_bi_rho_scf_aux]);
 
-        // printf("After weight %e, a %e \n", weight, a);
-        // printf("After Aux rho %e, Rho %e\n", pvecback[pba->index_bg_rho_scf_aux], pvecback[pba->index_bi_rho_scf]);
+      // printf("After weight %e, a %e \n", weight, a);
+      // printf("After Aux rho %e, Rho %e\n", pvecback[pba->index_bg_rho_scf_aux], pvecback[pba->index_bi_rho_scf]);
 
-        // pvecback_B[pba->index_bi_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback_B[pba->index_bi_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback_B[pba->index_bi_rho_scf_aux];
+      // pvecback_B[pba->index_bi_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback_B[pba->index_bi_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback_B[pba->index_bi_rho_scf_aux];
 
+    }
+    elseif(pba->kg_fld_switch == _FALSE_ && pba->scf_evolve_as_fluid_orig == _TRUE_);{
+       //if we just switched from KG to fluid, we need to correctly initialize the density.
+      pvecback_B[pba->index_bi_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.;
     }
     /****THE REAL QUANTITIES ARE ASSIGNED HERE****/
     //pvecback[pba->index_bg_rho_scf] = pba->Omega0_scf * pow(pba->H0,2) / pow(a_rel,3);
@@ -3280,7 +3289,7 @@ int background_derivs(
 
 
    /* VP; in AxiCLASS we can switch from KG equation to fluid variables for the scalar field*/
-   if(pba->has_scf == _TRUE_ && pba->scf_evolve_as_fluid == _TRUE_ ){
+   if(pba->has_scf == _TRUE_ && (pba->scf_evolve_as_fluid == _TRUE_ || pba->scf_evolve_as_fluid_orig) ){
      if(pba->m_scf*pba->H0/H >= pba->threshold_scf_fluid_m_over_H){ //We switch for fluid equations at m > 3H by default.
        pba->scf_kg_eq = _FALSE_;
        // if(pba->scf_potential==axionquad &&  pba->a_c==1.0 ){
@@ -3373,7 +3382,7 @@ int background_derivs(
 
     //
     }
-    else if (pba->scf_evolve_as_fluid == _FALSE_ && pba->scf_kg_eq == _FALSE_) {
+    else if ((pba->scf_evolve_as_fluid == _FALSE_ || pba->scf_evolve_as_fluid_orig) && pba->scf_kg_eq == _FALSE_) {
       /*COComment Throw an error code if neither KG nor fluid equations apply - this should never happen */
       class_stop(pba->error_message,"We are not evolving scalar field as KG nor fluid eq, something has gone wrong!\n");
     }
