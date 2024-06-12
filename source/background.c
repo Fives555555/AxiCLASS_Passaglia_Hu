@@ -517,7 +517,7 @@ int background_functions(
     pvecback[pba->index_bg_ddV_scf] = ddV_scf(pba,phi); // ddV_scf(pba,phi); //potential'' as function of phi
     pvecback[pba->index_bg_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.; // energy of the scalar field. The field units are set automatically by setting the initial conditions
     pvecback[pba->index_bg_p_scf] = (phi_prime*phi_prime/(2*a*a) - V_scf(pba,phi))/3.; // pressure of the scalar field
-    pvecback[pba->index_bg_w_scf] =pvecback[pba->index_bg_p_scf]/pvecback[pba->index_bg_rho_scf]; // e.o.s of the scalar field, only used for outputs
+    pvecback[pba->index_bg_w_scf] = pvecback[pba->index_bg_p_scf]/pvecback[pba->index_bg_rho_scf]; // e.o.s of the scalar field, only used for outputs
 
     H = sqrt(rho_tot-pba->K/a/a);
     Hprime = - (3./2.) * (rho_tot + p_tot) * a + pba->K/a;
@@ -543,9 +543,8 @@ int background_functions(
     // weight = 0.5 - 0.5 * tanh((pba->m_scf*pba->H0/H - 0.8 * pba->threshold_scf_fluid_m_over_H));
 
 
-
-
-    pvecback[pba->index_bg_rho_scf] = ((weight) * pvecback[pba->index_bg_rho_scf]+ (1 - weight) * pvecback[pba->index_bg_rho_scf_aux]);
+    pvecback[pba->index_bg_rho_scf] = ((weight) * pvecback[pba->index_bg_rho_scf] + (1 - weight) * pvecback[pba->index_bg_rho_scf_aux]);
+    pvecback[pba->index_bg_p_scf] = (weight) * pvecback[pba->index_bg_w_scf] * pvecback[pba->index_bg_rho_scf] + (1 - weight) * pvecback[pba->index_bg_w_scf] * pvecback[pba->index_bg_rho_scf_aux];
 
     // printf("Before weight %e, a %e \n", weight, a);
     // printf("Before Aux rho %e, Rho %e\n", pvecback[pba->index_bg_rho_scf_aux], pvecback[pba->index_bg_rho_scf]);
