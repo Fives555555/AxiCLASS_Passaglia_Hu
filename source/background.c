@@ -581,8 +581,10 @@ int background_functions(
 
     //pvecback[pba->index_bg_rho_scf] = pvecback[pba->index_bg_rho_scf_aux];
 
-    if(pba->kg_fld_switch == _FALSE_ && pba->scf_evolve_as_fluid == _TRUE_){
+    if(pba->kg_fld_switch == _FALSE_){
       pba->kg_fld_switch = _TRUE_;
+      
+      if(pba->scf_evolve_as_fluid == _TRUE_){
       //if we just switched from KG to fluid, we need to correctly initialize the density.
       pvecback_B[pba->index_bi_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.;
       H = sqrt(rho_tot-pba->K/a/a);
@@ -603,8 +605,6 @@ int background_functions(
 
       // weight = 0.5 - 0.5 * tanh((pba->m_scf*pba->H0/H - 0.8 * pba->threshold_scf_fluid_m_over_H));
 
-
-
       pvecback[pba->index_bi_rho_scf] = ((weight) * pvecback[pba->index_bi_rho_scf]+ (1 - weight) * pvecback[pba->index_bi_rho_scf_aux]);
 
       // printf("After weight %e, a %e \n", weight, a);
@@ -612,12 +612,17 @@ int background_functions(
 
       // pvecback_B[pba->index_bi_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback_B[pba->index_bi_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback_B[pba->index_bi_rho_scf_aux];
 
+      }
+
+      else if(pba->scf_evolve_as_fluid_orig == _TRUE_){
+        //if we just switched from KG to fluid, we need to correctly initialize the density.
+        pvecback_B[pba->index_bi_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.;
+        
+      }
+      
+      
     }
-    else if(pba->kg_fld_switch == _FALSE_ && pba->scf_evolve_as_fluid_orig == _TRUE_){
-      pba->kg_fld_switch = _TRUE_;
-       //if we just switched from KG to fluid, we need to correctly initialize the density.
-      pvecback_B[pba->index_bi_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.;
-    }
+
     /****THE REAL QUANTITIES ARE ASSIGNED HERE****/
     //pvecback[pba->index_bg_rho_scf] = pba->Omega0_scf * pow(pba->H0,2) / pow(a_rel,3);
 
