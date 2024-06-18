@@ -242,6 +242,7 @@ struct fzerofun_workspace {
   enum scf_pot_inp scf_potential; /**< List of currently implement potential for a scalar field */
   short scf_evolve_as_fluid; /** Should we evolve as a fluid or use KG eqs all the way through? */
   short scf_evolve_as_fluid_orig; /** Should we evolve as a fluid or use KG eqs all the way through? */
+  short scf_evolve_as_fluid_new; /** Should we evolve as a fluid or use KG eqs all the way through? */
   short scf_evolve_as_fluid_always; /** Should we evolve as a fluid or use KG eqs all the way through? */
   short do_shooting;        /**< Should we do shooting */
   short do_shooting_scf;        /**< Should we use shooting method to determine phi_init */
