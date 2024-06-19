@@ -520,7 +520,7 @@ int background_functions(
     pvecback[pba->index_bg_w_scf] = pvecback[pba->index_bg_p_scf]/pvecback[pba->index_bg_rho_scf]; // e.o.s of the scalar field, only used for outputs
 
 
-    if(pba->scf_evolve_as_fluid == _TRUE_){
+    if(pba->scf_evolve_as_fluid_orig == _FALSE_){
       H = sqrt(rho_tot-pba->K/a/a);
       Hprime = - (3./2.) * (rho_tot + p_tot) * a + pba->K/a;
       factor = 6*pow(H,2)/(9*pow(H,4) - 4*(4*pow(H,2)*pow(pba->m_scf*pba->H0,2) + pow(Hprime,2)/pow(a,2)));
@@ -581,7 +581,7 @@ int background_functions(
 
     //pvecback[pba->index_bg_rho_scf] = pvecback[pba->index_bg_rho_scf_aux];
 
-    if(pba->kg_fld_switch == _FALSE_ && pba->scf_evolve_as_fluid == _TRUE_){
+    if(pba->kg_fld_switch == _FALSE_ && pba->scf_evolve_as_fluid_orig == _FALSE_){
       pba->kg_fld_switch = _TRUE_;
       //if we just switched from KG to fluid, we need to correctly initialize the density.
       pvecback_B[pba->index_bi_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.;
@@ -624,7 +624,7 @@ int background_functions(
 
     pvecback[pba->index_bg_rho_scf] = pvecback_B[pba->index_bi_rho_scf];
 
-    if(pba->scf_evolve_as_fluid == _TRUE_){
+    if(pba->scf_evolve_as_fluid_orig == _FALSE_){
       pvecback[pba->index_bg_p_scf] = 1.5*pow(H/pba->m_scf,2)*pvecback_B[pba->index_bi_rho_scf];
     }
     else if(pba->scf_evolve_as_fluid_orig == _TRUE_){
@@ -634,7 +634,7 @@ int background_functions(
     if(pba->log10_axion_ac > -30){
       /* approximate fluid equation of state for the axion */
 
-      if(pba->scf_evolve_as_fluid == _TRUE_){
+      if(pba->scf_evolve_as_fluid_orig == _FALSE_){
         pvecback[pba->index_bg_w_scf] = 1.5*pow(H/(pba->m_scf*pba->H0),2);
       }
       else if(pba->scf_evolve_as_fluid_orig == _TRUE_){
@@ -644,7 +644,7 @@ int background_functions(
       
     }
     else{
-      if(pba->scf_evolve_as_fluid == _TRUE_){
+      if(pba->scf_evolve_as_fluid_orig == _FALSE_){
         pvecback[pba->index_bg_w_scf] = 1.5*pow(H/(pba->m_scf*pba->H0),2);      }
       else if(pba->scf_evolve_as_fluid_orig == _TRUE_){
         pvecback[pba->index_bg_w_scf] = pba->w_scf;
@@ -3308,7 +3308,7 @@ int background_derivs(
 
 
    /* VP; in AxiCLASS we can switch from KG equation to fluid variables for the scalar field*/
-   if(pba->has_scf == _TRUE_ && (pba->scf_evolve_as_fluid == _TRUE_ || pba->scf_evolve_as_fluid_orig) ){
+   if(pba->has_scf == _TRUE_ && pba->scf_evolve_as_fluid == _TRUE_){
      if(pba->m_scf*pba->H0/H >= pba->threshold_scf_fluid_m_over_H){ //We switch for fluid equations at m > 3H by default.
        pba->scf_kg_eq = _FALSE_;
        // if(pba->scf_potential==axionquad &&  pba->a_c==1.0 ){
@@ -3394,7 +3394,7 @@ int background_derivs(
     else if(pba->scf_kg_eq == _FALSE_) {
     // printf("Evolution a %e, Rho %e, w %e \n", a, y[pba->index_bi_rho_scf], pba->w_scf);
     // dy[pba->index_bi_rho_scf] = -3.*y[pba->index_bi_rho_scf]*(1+pba->w_scf);
-    if(pba->scf_evolve_as_fluid == _TRUE_){
+    if(pba->scf_evolve_as_fluid_orig == _FALSE_){
       dy[pba->index_bi_rho_scf] = -3.*y[pba->index_bi_rho_scf]*(1 + 1.5*pow(H/(pba->m_scf*pba->H0),2));
     }
     else if(pba->scf_evolve_as_fluid_orig == _TRUE_){
@@ -3406,7 +3406,7 @@ int background_derivs(
 
     //
     }
-    else if ((pba->scf_evolve_as_fluid == _FALSE_ || pba->scf_evolve_as_fluid_orig) && pba->scf_kg_eq == _FALSE_) {
+    else if (pba->scf_evolve_as_fluid == _FALSE_ && pba->scf_kg_eq == _FALSE_) {
       /*COComment Throw an error code if neither KG nor fluid equations apply - this should never happen */
       class_stop(pba->error_message,"We are not evolving scalar field as KG nor fluid eq, something has gone wrong!\n");
     }
