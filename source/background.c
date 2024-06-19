@@ -581,7 +581,7 @@ int background_functions(
 
     //pvecback[pba->index_bg_rho_scf] = pvecback[pba->index_bg_rho_scf_aux];
 
-    if(pba->kg_fld_switch == _FALSE_ && pba->scf_evolve_as_fluid_orig == _FALSE_){
+    if(pba->kg_fld_switch == _FALSE_){
       pba->kg_fld_switch = _TRUE_;
 
       if(pba->scf_evolve_as_fluid_orig == _FALSE_){
