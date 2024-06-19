@@ -630,7 +630,7 @@ int background_functions(
     if(pba->scf_evolve_as_fluid_orig == _FALSE_){
       pvecback[pba->index_bg_p_scf] = 1.5*pow(H/pba->m_scf,2)*pvecback_B[pba->index_bi_rho_scf];
     }
-    else if(pba->scf_evolve_as_fluid_orig == _TRUE_){
+    else{
       pvecback[pba->index_bg_p_scf] = pba->w_scf*pvecback_B[pba->index_bi_rho_scf];
     }
     
@@ -640,7 +640,7 @@ int background_functions(
       if(pba->scf_evolve_as_fluid_orig == _FALSE_){
         pvecback[pba->index_bg_w_scf] = 1.5*pow(H/(pba->m_scf*pba->H0),2);
       }
-      else if(pba->scf_evolve_as_fluid_orig == _TRUE_){
+      else{
         pvecback[pba->index_bg_w_scf] = (1+pba->w_scf)/(1+pow(pba->a_c/a,3*(1+pba->w_scf)))-1;
       }
 
@@ -649,7 +649,7 @@ int background_functions(
     else{
       if(pba->scf_evolve_as_fluid_orig == _FALSE_){
         pvecback[pba->index_bg_w_scf] = 1.5*pow(H/(pba->m_scf*pba->H0),2);      }
-      else if(pba->scf_evolve_as_fluid_orig == _TRUE_){
+      else{
         pvecback[pba->index_bg_w_scf] = pba->w_scf;
       }
       
@@ -3400,7 +3400,7 @@ int background_derivs(
     if(pba->scf_evolve_as_fluid_orig == _FALSE_){
       dy[pba->index_bi_rho_scf] = -3.*y[pba->index_bi_rho_scf]*(1 + 1.5*pow(H/(pba->m_scf*pba->H0),2));
     }
-    else if(pba->scf_evolve_as_fluid_orig == _TRUE_){
+    else{
       dy[pba->index_bi_rho_scf] = -3.*y[pba->index_bi_rho_scf]*(1+pba->w_scf);
     }
     dy[pba->index_bi_phi_scf] = 0;
