@@ -4191,20 +4191,6 @@ int input_read_parameters_species(struct file_content * pfc,
             }
 
 
-           class_call(parser_read_string(pfc,"use_new_fld_IC",&string1,&flag1,errmsg),
-                     errmsg,
-                     errmsg);
-           if (flag1 == _TRUE_){
-             if((strstr(string1,"y") != NULL) || (strstr(string1,"Y") != NULL)){
-               ppt->use_new_fld_IC = _TRUE_;
-             }
-             else if((strstr(string1,"n") != NULL) || (strstr(string1,"N") != NULL)){
-               ppt->use_new_fld_IC = _FALSE_;
-             }
-             else {
-               class_stop(errmsg,"incomprehensible input '%s' for the field 'use_new_fld_IC'",string1);
-             }
-           }
 
 
 
@@ -4254,6 +4240,22 @@ int input_read_parameters_species(struct file_content * pfc,
 
       // This bracket ends reading in of EDE params
       }
+
+      class_call(parser_read_string(pfc,"use_new_fld_IC",&string1,&flag1,errmsg),
+                errmsg,
+                errmsg);
+      if (flag1 == _TRUE_){
+        if((strstr(string1,"y") != NULL) || (strstr(string1,"Y") != NULL)){
+          ppt->use_new_fld_IC = _TRUE_;
+        }
+        else if((strstr(string1,"n") != NULL) || (strstr(string1,"N") != NULL)){
+          ppt->use_new_fld_IC = _FALSE_;
+        }
+        else {
+          class_stop(errmsg,"incomprehensible input '%s' for the field 'use_new_fld_IC'",string1);
+        }
+      }
+
 
 
 
@@ -4306,6 +4308,20 @@ int input_read_parameters_species(struct file_content * pfc,
         if((strstr(string1,"y") != NULL) || (strstr(string1,"Y") != NULL)){
           ppt->scales_like_WZDR = _TRUE_;
           class_read_double("a_pivot_DMDE_interaction",ppt->a_pivot_DMDE_interaction);
+
+           class_call(parser_read_string(pfc,
+                                         "a_pivot_DMDE_interaction_is_ac",
+                                         &string1,
+                                         &flag1,
+                                         errmsg),
+                       errmsg,
+                       errmsg);
+           if (flag1 == _TRUE_){
+             if((strstr(string1,"y") != NULL) || (strstr(string1,"Y") != NULL)){
+               ppt->a_pivot_DMDE_interaction = pba->a_c;
+             }
+          }
+
 
         }
         else if((strstr(string1,"n") != NULL) || (strstr(string1,"N") != NULL)){
@@ -4851,7 +4867,8 @@ class_call(parser_read_double(pfc,"Omega_scf_shoot_fa",&param4,&flag4,errmsg),
         class_test(pba->scf_parameters_size<2,
                errmsg,
                "Since you are not using attractor initial conditions, you must specify phi and its derivative phi' as the last two entries in scf_parameters. See explanatory.ini for more details.");
-        if(pba->scf_potential == phi_2n){
+        if(pba->scf_potential == phi_2n || pba->scf_potential == axionquad){
+          pba->phi_ini_scf = pba->scf_parameters[pba->scf_parameters_size-2];//dummy: will be set later
           pba->phi_prime_ini_scf = pba->scf_parameters[pba->scf_parameters_size-1];//dummy: will be set later
         }else{
           // pba->phi_ini_scf = 0;//dummy: will be set later
