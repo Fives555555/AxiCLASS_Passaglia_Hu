@@ -669,6 +669,11 @@ int background_functions(
 
     //pvecback[pba->index_bg_rho_scf] = pvecback[pba->index_bg_rho_scf_aux];
 
+
+    H = sqrt((rho_tot + (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.)-pba->K/a/a);
+    Hprime = - (3./2.) * ((rho_tot + (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.) + (p_tot + (phi_prime*phi_prime/(2*a*a) - V_scf(pba,phi))/3.)) * a + pba->K/a;
+
+
     if(pba->kg_fld_switch == _FALSE_){
       pba->kg_fld_switch = _TRUE_;
 
@@ -715,8 +720,7 @@ int background_functions(
 
     pvecback[pba->index_bg_rho_scf] = pvecback_B[pba->index_bi_rho_scf];
 
-    H = sqrt((rho_tot + pvecback[pba->index_bg_rho_scf])-pba->K/a/a);
-    Hprime = - (3./2.) * ((rho_tot + pvecback[pba->index_bg_rho_scf]) + (p_tot + pvecback[pba->index_bg_p_scf])) * a + pba->K/a;
+
 
     if(pba->scf_evolve_as_fluid_PH == _TRUE_){
       pvecback[pba->index_bg_p_scf] = 1.5*pow(H/(pba->m_scf*pba->H0),2)*pvecback_B[pba->index_bi_rho_scf];
