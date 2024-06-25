@@ -700,7 +700,6 @@ class_call(parser_read_string(pfc,"do_shooting",&string1,&flag1,errmsg),
 
         if ((flag1 == _TRUE_) && ((strstr(string1,"y") != NULL) || (strstr(string1,"Y") != NULL))) {
         fzw.scf_evolve_as_fluid_PH = _TRUE_;
-        class_read_double("threshold_scf_fluid_m_over_H",fzw.threshold_scf_fluid_m_over_H);
         }
         else {
           fzw.scf_evolve_as_fluid_PH = _FALSE_;
@@ -4492,7 +4491,6 @@ class_call(parser_read_double(pfc,"Omega_scf_shoot_fa",&param4,&flag4,errmsg),
     if (flag1 == _TRUE_){
       if((strstr(string1,"y") != NULL) || (strstr(string1,"Y") != NULL)){
         pba->scf_evolve_as_fluid_PH = _TRUE_;
-        class_read_double("threshold_scf_fluid_m_over_H",pba->threshold_scf_fluid_m_over_H);
       }
       else {
         pba->scf_evolve_as_fluid_PH = _FALSE_;

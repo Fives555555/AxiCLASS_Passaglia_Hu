@@ -412,7 +412,6 @@ int background_functions(
   double dp_dloga;
 
     /**ADDITIONAL LOCAL VARIABLES*/
-  double D_sw;
   double phi_c;
   double phi_s;
   double phi_prime_c;
@@ -422,7 +421,6 @@ int background_functions(
   double Hprime;
   double weight;
   /**INITIALISE ADDITIONAL LOCAL VARIABLES*/
-  D_sw = 0.;
   phi_c = 0.;
   phi_s = 0.;
   phi_prime_c = 0.;
@@ -431,10 +429,6 @@ int background_functions(
   H = 0.;
   Hprime = 0.;
   weight = 1.;
-
- 
-  
-
 
   /** - initialize local variables */
   rho_tot = 0.;
@@ -721,8 +715,11 @@ int background_functions(
 
     pvecback[pba->index_bg_rho_scf] = pvecback_B[pba->index_bi_rho_scf];
 
+    H = sqrt((rho_tot + pvecback[pba->index_bg_rho_scf])-pba->K/a/a);
+    Hprime = - (3./2.) * ((rho_tot + pvecback[pba->index_bg_rho_scf]) + (p_tot + pvecback[pba->index_bg_p_scf])) * a + pba->K/a;
+
     if(pba->scf_evolve_as_fluid_PH == _TRUE_){
-      pvecback[pba->index_bg_p_scf] = 1.5*pow(H/pba->m_scf,2)*pvecback_B[pba->index_bi_rho_scf];
+      pvecback[pba->index_bg_p_scf] = 1.5*pow(H/(pba->m_scf*pba->H0),2)*pvecback_B[pba->index_bi_rho_scf];
     }
     else{
       pvecback[pba->index_bg_p_scf] = pba->w_scf*pvecback_B[pba->index_bi_rho_scf];
