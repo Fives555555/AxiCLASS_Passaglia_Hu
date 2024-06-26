@@ -621,7 +621,7 @@ int background_functions(
             (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
         weight = 0.5 - 0.5 * tanh(1.5*(pba->m_scf*pba->H0/H - 0.8 * pba->threshold_scf_fluid_m_over_H));
         pvecback[pba->index_bg_rho_scf] = ((weight) * pvecback[pba->index_bg_rho_scf] + (1 - weight) * pvecback[pba->index_bg_rho_scf_aux]);
-        pvecback[pba->index_bg_p_scf] = (weight) * pvecback[pba->index_bg_w_scf] * pvecback[pba->index_bg_rho_scf] + (1 - weight) * pvecback[pba->index_bg_w_scf] * pvecback[pba->index_bg_rho_scf_aux];
+        pvecback[pba->index_bg_p_scf] = (weight) * pvecback[pba->index_bg_w_scf] * pvecback[pba->index_bg_p_scf] + (1 - weight) * pvecback[pba->index_bg_w_scf] * pvecback[pba->index_bg_p_scf_aux];
     }
     // End PH
 
@@ -1498,6 +1498,7 @@ int background_indices(
   class_define_index(pba->index_bg_rho_scf_aux,pba->has_scf,index_bg,1);
   class_define_index(pba->index_bg_Omega_scf,pba->has_scf,index_bg,1);
   class_define_index(pba->index_bg_p_scf,pba->has_scf,index_bg,1);
+  class_define_index(pba->index_bg_p_scf_aux,pba->has_scf,index_bg,1);
   class_define_index(pba->index_bg_p_prime_scf,pba->has_scf,index_bg,1);
   class_define_index(pba->index_bg_w_scf,pba->has_scf,index_bg,1);
   class_define_index(pba->index_bg_dw_scf,pba->has_scf,index_bg,1);
@@ -2339,8 +2340,8 @@ int background_solve(
   /* evolvers */
   extern int evolver_rk();
   extern int evolver_ndf15();
-  //int (*generic_evolver)() = evolver_ndf15;
-  int (*generic_evolver)() = evolver_rk;
+  int (*generic_evolver)() = evolver_ndf15;
+  // int (*generic_evolver)() = evolver_rk;
 
   /* initial and final loga values */
   double loga_ini, loga_final;
