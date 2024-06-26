@@ -428,7 +428,7 @@ int background_functions(
   factor = 0.;
   H = 0.;
   Hprime = 0.;
-  weight = 1.;
+  weight = 0.;
 
   /** - initialize local variables */
   rho_tot = 0.;
@@ -672,6 +672,9 @@ int background_functions(
     if(pba->kg_fld_switch == _FALSE_){
       pba->kg_fld_switch = _TRUE_;
 
+      //if we just switched from KG to fluid, we need to correctly initialize the density.
+      pvecback_B[pba->index_bi_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.;
+
       if(pba->scf_evolve_as_fluid_PH == _TRUE_){
 
         //if we just switched from KG to fluid, we need to correctly initialize the density.
@@ -702,10 +705,6 @@ int background_functions(
         // pvecback_B[pba->index_bi_rho_scf] = exp(-pba->m_scf*pba->H0/H) * pvecback_B[pba->index_bi_rho_scf] + (1 - exp(-pba->m_scf*pba->H0/H)) * pvecback_B[pba->index_bi_rho_scf_aux];
 
       }
-      else{
-        //if we just switched from KG to fluid, we need to correctly initialize the density.
-        pvecback_B[pba->index_bi_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.;
-      }
       
     }
 
@@ -727,13 +726,15 @@ int background_functions(
     
     if(pba->log10_axion_ac > -30){
       /* approximate fluid equation of state for the axion */
+      pvecback[pba->index_bg_w_scf] = (1+pba->w_scf)/(1+pow(pba->a_c/a,3*(1+pba->w_scf)))-1;
 
-      if(pba->scf_evolve_as_fluid_PH == _TRUE_){
-        pvecback[pba->index_bg_w_scf] = 1.5*pow(H/(pba->m_scf*pba->H0),2);
-      }
-      else{
-        pvecback[pba->index_bg_w_scf] = (1+pba->w_scf)/(1+pow(pba->a_c/a,3*(1+pba->w_scf)))-1;
-      }
+
+      // if(pba->scf_evolve_as_fluid_PH == _TRUE_){
+      //   pvecback[pba->index_bg_w_scf] = 1.5*pow(H/(pba->m_scf*pba->H0),2);
+      // }
+      // else{
+      //   pvecback[pba->index_bg_w_scf] = (1+pba->w_scf)/(1+pow(pba->a_c/a,3*(1+pba->w_scf)))-1;
+      // }
 
       
     }
@@ -2389,7 +2390,7 @@ int background_solve(
   /* evolvers */
   extern int evolver_rk();
   extern int evolver_ndf15();
-  int (*generic_evolver)() = evolver_ndf15;
+  int (*generic_evolver)() = evolver_rk;
 
   /* initial and final loga values */
   double loga_ini, loga_final;
