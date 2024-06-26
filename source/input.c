@@ -692,7 +692,16 @@ class_call(parser_read_string(pfc,"do_shooting",&string1,&flag1,errmsg),
           fzw.scf_evolve_as_fluid = _FALSE_;
         }
 
+       class_call(parser_read_string(pfc,"scf_evolve_as_fluid_PH",&string1,&flag1,errmsg),
+                 errmsg,
+                 errmsg);
 
+        if ((flag1 == _TRUE_) && ((strstr(string1,"y") != NULL) || (strstr(string1,"Y") != NULL))) {
+        fzw.scf_evolve_as_fluid_PH = _TRUE_;
+        }
+        else {
+          fzw.scf_evolve_as_fluid_PH = _FALSE_;
+        }
 
         class_call(parser_read_string(pfc,"scf_evolve_as_fluid_PH",&string1,&flag1,errmsg),
                  errmsg,
@@ -4475,6 +4484,26 @@ class_call(parser_read_double(pfc,"Omega_scf_shoot_fa",&param4,&flag4,errmsg),
     }
     else {
       pba->scf_evolve_as_fluid = _FALSE_;
+    }
+
+     class_call(parser_read_string(pfc,
+                                  "scf_evolve_as_fluid_PH",
+                                  &string1,
+                                  &flag1,
+                                  errmsg),
+                errmsg,
+                errmsg);
+
+    if (flag1 == _TRUE_){
+      if((strstr(string1,"y") != NULL) || (strstr(string1,"Y") != NULL)){
+        pba->scf_evolve_as_fluid_PH = _TRUE_;
+      }
+      else {
+        pba->scf_evolve_as_fluid_PH = _FALSE_;
+      }
+    }
+    else {
+      pba->scf_evolve_as_fluid_PH = _FALSE_;
     }
 
 
