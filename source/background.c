@@ -665,8 +665,9 @@ int background_functions(
     pvecback[pba->index_bg_dV_scf] = dV_scf(pba,phi); // dV_scf(pba,phi); //potential' as function of phi
     pvecback[pba->index_bg_ddV_scf] = ddV_scf(pba,phi); // ddV_scf(pba,phi); //potential'' as function of phi
 
-    H = sqrt((rho_tot + pvecback[pba->index_bg_rho_scf])-pba->K/a/a);
-    Hprime = - (3./2.) * ((rho_tot + pvecback[pba->index_bg_rho_scf]) + (p_tot + pvecback[pba->index_bg_p_scf])) * a + pba->K/a;  
+    H = sqrt((rho_tot + (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.)-pba->K/a/a);
+    Hprime = - (3./2.) * ((rho_tot + (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.) 
+          + (p_tot + (phi_prime*phi_prime/(2*a*a) - V_scf(pba,phi))/3.)) * a + pba->K/a;
 
     if(pba->kg_fld_switch == _FALSE_){
       pba->kg_fld_switch = _TRUE_;
@@ -2377,7 +2378,7 @@ int background_solve(
   /* evolvers */
   extern int evolver_rk();
   extern int evolver_ndf15();
-  int (*generic_evolver)() = evolver_ndf15;
+  int (*generic_evolver)() = evolver_rk;
 
   /* initial and final loga values */
   double loga_ini, loga_final;
