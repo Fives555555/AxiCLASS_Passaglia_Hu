@@ -692,8 +692,6 @@ class_call(parser_read_string(pfc,"do_shooting",&string1,&flag1,errmsg),
           fzw.scf_evolve_as_fluid = _FALSE_;
         }
 
-
-
         class_call(parser_read_string(pfc,"scf_evolve_as_fluid_PH",&string1,&flag1,errmsg),
                  errmsg,
                  errmsg);
@@ -704,9 +702,6 @@ class_call(parser_read_string(pfc,"do_shooting",&string1,&flag1,errmsg),
         else {
           fzw.scf_evolve_as_fluid_PH = _FALSE_;
         }
-
-
-
 
         if(fzw.scf_potential == axionquad){
           fzw.m_scf = fzw.scf_parameters[0];
