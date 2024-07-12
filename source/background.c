@@ -605,7 +605,7 @@ int background_functions(
     pvecback[pba->index_bg_rho_scf] = (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.; // energy of the scalar field. The field units are set automatically by setting the initial conditions
     pvecback[pba->index_bg_p_scf] = (phi_prime*phi_prime/(2*a*a) - V_scf(pba,phi))/3.; // pressure of the scalar field
 
-    pvecback[pba->index_bg_w_scf] =pvecback[pba->index_bg_p_scf]/pvecback[pba->index_bg_rho_scf]; // e.o.s of the scalar field, only used for outputs
+    pvecback[pba->index_bg_w_scf] = pvecback[pba->index_bg_p_scf]/pvecback[pba->index_bg_rho_scf]; // e.o.s of the scalar field, only used for outputs
 
     // PH
     H = sqrt((rho_tot + pvecback[pba->index_bg_rho_scf])-pba->K/a/a);
