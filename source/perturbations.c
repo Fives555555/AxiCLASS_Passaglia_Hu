@@ -7322,6 +7322,8 @@ void PH_values(
   // COULD RETURN ALL AUXILIARIES?
   // COULD ALSO DO SAME WITH H AND HPRIME?
 
+  printf("deltaphi_c: %e, deltaphi_s: %e\n", delta_phi_c, delta_phi_s);
+
   }
 
 
@@ -7651,6 +7653,7 @@ int perturbations_total_stress_energy(
                delta_rho_scf=0;
                delta_p_scf=0;
              }
+             printf("deltaphi before fluid %e\n", y[ppw->pv->index_pt_phi_scf]);
              if(pba->scf_evolve_as_fluid == _TRUE_){
               y[ppw->pv->index_pt_delta_scf] = delta_rho_scf/ppw->pvecback[pba->index_bg_rho_scf];
               // PH approx starts
@@ -7665,6 +7668,7 @@ int perturbations_total_stress_energy(
                 // Alternate using the function
                 PH_values(pba, ppt, ppw, k, PH_variables);
                 y[ppw->pv->index_pt_delta_scf] = PH_variables[0]/ppw->pvecback[pba->index_bg_rho_scf];
+                printf("deltaphi after fluid %e\n", y[ppw->pv->index_pt_phi_scf]);
 
                 // rho_aux = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
                 //     (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
