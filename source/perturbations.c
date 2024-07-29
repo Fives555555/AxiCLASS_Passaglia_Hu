@@ -7692,7 +7692,7 @@ int perturbations_total_stress_energy(
               // printf("a %e a_c %e ca2_scf %e\n", a,pba->a_c,ca2_scf);
               // cs2_scf = (a*pba->m_scf*pba->H0)/k*(pow(1+pow(k/a/(pba->m_scf*pba->H0),2),0.5)-1)+5./4.*pow(ppw->pvecback[pba->index_bg_H]/(pba->m_scf*pba->H0),2);
               // printf("old cs2 %e new cs2 %e \n", k2/(4*pba->m_scf*pba->H0*pba->m_scf*pba->H0*a2)/(1+k2/(4*pba->m_scf*pba->H0*pba->m_scf*pba->H0*a2)), cs2_scf);
-
+              printf("Before switch cs2 %e ca2 %e\n", cs2_scf, ca2_scf);
               // PH approx starts
               if(pba->scf_evolve_as_fluid_PH == _TRUE_)
               {
@@ -7706,6 +7706,7 @@ int perturbations_total_stress_energy(
                 PH_values(pba, ppt, ppw, k, PH_variables);
                 cs2_scf = PH_variables[2];
                 ca2_scf = PH_variables[3];
+                printf("After switch cs2 %e ca2 %e\n", cs2_scf, ca2_scf);
 
               }
               // PH approx ends
@@ -7717,7 +7718,7 @@ int perturbations_total_stress_energy(
               // printf("pba->log10_axion_ac %e\n", pba->log10_axion_ac);
               ca2_scf = (pow(a,3)*pow(a_over_ac,3*pba->n_axion/(1+pba->n_axion))*(-1+pba->n_axion)-pow(a_over_ac,3/(1+pba->n_axion))*pow(pba->a_c,3)*(1+3*pba->n_axion))
                     /(pow(a,3)*pow(a_over_ac,3*pba->n_axion/(1+pba->n_axion))+pow(a_over_ac,3/(1+pba->n_axion))*pow(pba->a_c,3))/(1+pba->n_axion);
-              
+              printf("Before switch cs2 %e ca2 \n", cs2_scf, ca2_scf);
               // PH approx starts
               if(pba->scf_evolve_as_fluid_PH == _TRUE_)
               {
@@ -7731,6 +7732,7 @@ int perturbations_total_stress_energy(
                 PH_values(pba, ppt, ppw, k, PH_variables);
                 cs2_scf = PH_variables[2];
                 ca2_scf = PH_variables[3];
+                printf("After switch cs2 %e ca2 \n", cs2_scf, ca2_scf);
 
               }
               // PH approx ends
