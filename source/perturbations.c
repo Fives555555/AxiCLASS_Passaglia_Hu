@@ -7231,7 +7231,7 @@ int perturbations_einstein(
 
 }
 
-// Might need to move this above the previous section
+// Might need to move this 
 void PH_values(
                       struct background * pba,
                       struct perturbations * ppt,
@@ -7322,7 +7322,9 @@ void PH_values(
   // COULD RETURN ALL AUXILIARIES?
   // COULD ALSO DO SAME WITH H AND HPRIME?
 
-  printf("deltaphi_c: %e, deltaphi_s: %e\n", delta_phi_c, delta_phi_s);
+  // printf("deltaphi_c: %e, deltaphi_s: %e, cs2_func %e, ca2_func %e\n", delta_phi_c, delta_phi_s, cs2_scf, ca2_scf);
+
+  // printf("deltaphi_c: %e, deltaphi_s: %e\n", delta_phi_c, delta_phi_s);
 
   }
 
@@ -7653,7 +7655,7 @@ int perturbations_total_stress_energy(
                delta_rho_scf=0;
                delta_p_scf=0;
              }
-             printf("deltaphi before fluid %e\n", y[ppw->pv->index_pt_phi_scf]);
+             printf("deltaphi before switch %e\n", y[ppw->pv->index_pt_phi_scf]);
              if(pba->scf_evolve_as_fluid == _TRUE_){
               y[ppw->pv->index_pt_delta_scf] = delta_rho_scf/ppw->pvecback[pba->index_bg_rho_scf];
               // PH approx starts
@@ -7668,7 +7670,9 @@ int perturbations_total_stress_energy(
                 // Alternate using the function
                 PH_values(pba, ppt, ppw, k, PH_variables);
                 y[ppw->pv->index_pt_delta_scf] = PH_variables[0]/ppw->pvecback[pba->index_bg_rho_scf];
-                printf("deltaphi after fluid %e\n", y[ppw->pv->index_pt_phi_scf]);
+                printf("deltaphi after switch %e\n", y[ppw->pv->index_pt_phi_scf]);
+                delta_rho_scf = PH_variables[0];
+                delta_p_scf = PH_variables[1];
 
                 // rho_aux = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
                 //     (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
@@ -7692,7 +7696,7 @@ int perturbations_total_stress_energy(
               // printf("a %e a_c %e ca2_scf %e\n", a,pba->a_c,ca2_scf);
               // cs2_scf = (a*pba->m_scf*pba->H0)/k*(pow(1+pow(k/a/(pba->m_scf*pba->H0),2),0.5)-1)+5./4.*pow(ppw->pvecback[pba->index_bg_H]/(pba->m_scf*pba->H0),2);
               // printf("old cs2 %e new cs2 %e \n", k2/(4*pba->m_scf*pba->H0*pba->m_scf*pba->H0*a2)/(1+k2/(4*pba->m_scf*pba->H0*pba->m_scf*pba->H0*a2)), cs2_scf);
-              printf("Before switch cs2 %e ca2 %e\n", cs2_scf, ca2_scf);
+              // printf("Before switch cs2 %e ca2 %e\n", cs2_scf, ca2_scf);
               // PH approx starts
               if(pba->scf_evolve_as_fluid_PH == _TRUE_)
               {
@@ -7706,7 +7710,7 @@ int perturbations_total_stress_energy(
                 PH_values(pba, ppt, ppw, k, PH_variables);
                 cs2_scf = PH_variables[2];
                 ca2_scf = PH_variables[3];
-                printf("After switch cs2 %e ca2 %e\n", cs2_scf, ca2_scf);
+                // printf("After switch cs2 %e ca2 %e\n", cs2_scf, ca2_scf);
 
               }
               // PH approx ends
@@ -7718,7 +7722,7 @@ int perturbations_total_stress_energy(
               // printf("pba->log10_axion_ac %e\n", pba->log10_axion_ac);
               ca2_scf = (pow(a,3)*pow(a_over_ac,3*pba->n_axion/(1+pba->n_axion))*(-1+pba->n_axion)-pow(a_over_ac,3/(1+pba->n_axion))*pow(pba->a_c,3)*(1+3*pba->n_axion))
                     /(pow(a,3)*pow(a_over_ac,3*pba->n_axion/(1+pba->n_axion))+pow(a_over_ac,3/(1+pba->n_axion))*pow(pba->a_c,3))/(1+pba->n_axion);
-              printf("Before switch cs2 %e ca2 \n", cs2_scf, ca2_scf);
+              // printf("Before switch cs2 %e ca2 \n", cs2_scf, ca2_scf);
               // PH approx starts
               if(pba->scf_evolve_as_fluid_PH == _TRUE_)
               {
@@ -7732,7 +7736,7 @@ int perturbations_total_stress_energy(
                 PH_values(pba, ppt, ppw, k, PH_variables);
                 cs2_scf = PH_variables[2];
                 ca2_scf = PH_variables[3];
-                printf("After switch cs2 %e ca2 \n", cs2_scf, ca2_scf);
+                // printf("After switch cs2 %e ca2 \n", cs2_scf, ca2_scf);
 
               }
               // PH approx ends
@@ -7740,7 +7744,7 @@ int perturbations_total_stress_energy(
 
             }
 
-            // NOT SURE WHAT TO DO HERE
+            // THINK I NEED TO ADD PH EFA HERE
 
             if(ppt->use_delta_scf_over_1plusw) delta_rho_scf = (1+ppw->pvecback[pba->index_bg_w_scf])*ppw->pvecback[pba->index_bg_rho_scf]*y[ppw->pv->index_pt_delta_scf];
             else delta_rho_scf = ppw->pvecback[pba->index_bg_rho_scf]*y[ppw->pv->index_pt_delta_scf]; //identical to fld above
@@ -7753,7 +7757,7 @@ int perturbations_total_stress_energy(
             delta_p_scf = cs2_scf * delta_rho_scf  + (cs2_scf-ca2_scf)*(3*a_prime_over_a*rho_plus_p_theta_scf/k/k);
 
         }
-      }
+      } // SHOULD PROBABLY ALSO PUT THIS IN PH EFA - HOW DOES THIS CHANGE FOR NEWTONIAN GAUGE?
     else{ //if newtonian gauge, equation for psi */
         if (ppt->scf_kg_eq[index_md][index_k] == 1){ //evolving via KG
           psi = y[ppw->pv->index_pt_phi] - 4.5 * (a2/k/k) * ppw->rho_plus_p_shear;
@@ -7843,7 +7847,7 @@ int perturbations_total_stress_energy(
           rho_plus_p_theta_scf =  1./3.*
             k*k/a2*ppw->pvecback[pba->index_bg_phi_prime_scf]*y[ppw->pv->index_pt_phi_scf];
         }
-        if(pba->scf_evolve_as_fluid == _TRUE_){
+        if(pba->scf_evolve_as_fluid == _TRUE_){ // NEED TO CHANGE THETA EQUATION FOR PH EFA
           if(ppt->use_big_theta_scf == _TRUE_){
             y[ppw->pv->index_pt_big_theta_scf] = (1./3.*k*k/a2*ppw->pvecback[pba->index_bg_phi_prime_scf]*y[ppw->pv->index_pt_phi_scf])/ppw->pvecback[pba->index_bg_rho_scf];
           }
