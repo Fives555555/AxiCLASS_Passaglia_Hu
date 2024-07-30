@@ -7258,6 +7258,7 @@ void PH_values(
   double delta_p_scf = 0.;
   double cs2_scf = 0.;
   double ca2_scf = 0.;
+  double theta_scf = 0.;
 
   // calculate H, Hprime, auxiliaries to go into delta
   hL_prime = ppw->pvecmetric[ppw->index_mt_h_prime];
@@ -7311,20 +7312,23 @@ void PH_values(
 
   ca2_scf = 1.5*pow(H/(pba->m_scf*pba->H0),2) - (-3*H*Hprime/pow(pba->m_scf*pba->H0,2))/(3*H*(1 + 1.5*pow(H/(pba->m_scf*pba->H0),2)));
 
-  // return delta_rho_scf/ppw->pvecback[pba->index_bg_rho_scf]; // NEED TO ALSO RETURN DELTA_P?????
+  theta_scf = (pba->K*pba->K*pba->m_scf*pba->H0/2*a) * (delta_phi_c*(phi_s + phi_prime_c/a) + delta_phi_s*(-phi_c + phi_prime_s/a)) 
+              / (ppw->pvecback[pba->index_bg_rho_scf] + ppw->pvecback[pba->index_bg_p_scf]);
+
 
   // y[ppw->pv->index_pt_delta_scf] = delta_rho_scf/ppw->pvecback[pba->index_bg_rho_scf];
   PH_variables[0] = delta_rho_scf;
   PH_variables[1] = delta_p_scf; // NEED TO DEFINE ARRAY LOCALLY BEFORE PASSING INTO THIS FUNCTION
   PH_variables[2] = cs2_scf;
   PH_variables[3] = ca2_scf;
+  PH_variables[4] = theta_scf;
 
   // COULD RETURN ALL AUXILIARIES?
   // COULD ALSO DO SAME WITH H AND HPRIME?
 
   // printf("deltaphi_c: %e, deltaphi_s: %e, cs2_func %e, ca2_func %e\n", delta_phi_c, delta_phi_s, cs2_scf, ca2_scf);
 
-  // printf("deltaphi_c: %e, deltaphi_s: %e\n", delta_phi_c, delta_phi_s);
+  printf("deltaphi_c: %e, deltaphi_s: %e\n", delta_phi_c, delta_phi_s);
 
   }
 
@@ -7384,7 +7388,7 @@ int perturbations_total_stress_energy(
   double Gamma_fld, S, S_prime, theta_t, theta_t_prime, rho_plus_p_theta_fld_prime, rho_plus_p_theta_scf,cs2_scf,ca2_scf,a_over_ac;
   double delta_p_b_over_rho_b;
   // PH and local variables
-  double PH_variables[4]; // 0=delta_rho, 1=delta_p // CAN INCLUDE MORE AND MAKE LARGER
+  double PH_variables[5]; // 0=delta_rho, 1=delta_p, 2=cs2_scf, 3=ca2_scf, 4=theta_scf // CAN INCLUDE MORE AND MAKE LARGER
   double H = 0.;
   double Hprime = 0.;
   double factor_PH = 0.;
@@ -7673,6 +7677,7 @@ int perturbations_total_stress_energy(
                 printf("deltaphi after switch %e\n", y[ppw->pv->index_pt_phi_scf]);
                 delta_rho_scf = PH_variables[0];
                 delta_p_scf = PH_variables[1];
+                // ACTUALLY SUBSTITUTING THESE IN CAUSES ISSUES - ZEROS AND NAN
 
                 // rho_aux = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
                 //     (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
@@ -7744,7 +7749,7 @@ int perturbations_total_stress_energy(
 
             }
 
-            // THINK I NEED TO ADD PH EFA HERE
+            // NEED TO ADD PH EFA HERE?
 
             if(ppt->use_delta_scf_over_1plusw) delta_rho_scf = (1+ppw->pvecback[pba->index_bg_w_scf])*ppw->pvecback[pba->index_bg_rho_scf]*y[ppw->pv->index_pt_delta_scf];
             else delta_rho_scf = ppw->pvecback[pba->index_bg_rho_scf]*y[ppw->pv->index_pt_delta_scf]; //identical to fld above
@@ -7757,7 +7762,7 @@ int perturbations_total_stress_energy(
             delta_p_scf = cs2_scf * delta_rho_scf  + (cs2_scf-ca2_scf)*(3*a_prime_over_a*rho_plus_p_theta_scf/k/k);
 
         }
-      } // SHOULD PROBABLY ALSO PUT THIS IN PH EFA - HOW DOES THIS CHANGE FOR NEWTONIAN GAUGE?
+      } // SHOULD PROBABLY ALSO PUT THIS IN PH EFA - HOW DOES THIS CHANGE FOR NEWTONIAN GAUGE? ONLY USING SYNCHRONOUS ATM
     else{ //if newtonian gauge, equation for psi */
         if (ppt->scf_kg_eq[index_md][index_k] == 1){ //evolving via KG
           psi = y[ppw->pv->index_pt_phi] - 4.5 * (a2/k/k) * ppw->rho_plus_p_shear;
@@ -7853,6 +7858,13 @@ int perturbations_total_stress_energy(
           }
           else{
             y[ppw->pv->index_pt_theta_scf] = (1./3.*k*k/a2*ppw->pvecback[pba->index_bg_phi_prime_scf]*y[ppw->pv->index_pt_phi_scf]) / (ppw->pvecback[pba->index_bg_rho_scf]+ppw->pvecback[pba->index_bg_p_scf]);
+
+            if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+            {
+              PH_values(pba, ppt, ppw, k, PH_variables);
+              y[ppw->pv->index_pt_theta_scf] = PH_variables[4];
+            }
+
           }
         }
 
