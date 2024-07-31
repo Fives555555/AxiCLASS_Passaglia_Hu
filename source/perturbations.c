@@ -5503,8 +5503,7 @@ int perturbations_vector_free(
 
 
 
-
-// Might need to move this 
+// PH approx. function starts
 void PH_values(
                       struct background * pba,
                       struct perturbations * ppt,
@@ -5533,6 +5532,7 @@ void PH_values(
   double ca2_scf = 0.;
   double theta_scf = 0.;
   double w_scf_f = 0.;
+  double delta_scf = 0.;
 
   // calculate H, Hprime, auxiliaries to go into delta
   hL_prime = ppw->pvecmetric[ppw->index_mt_h_prime];
@@ -5591,6 +5591,8 @@ void PH_values(
 
   w_scf_f = 1.5*pow(H/(pba->m_scf*pba->H0),2);
 
+  delta_scf = delta_rho_scf/ppw->pvecback[pba->index_bg_rho_scf];
+
   // y[ppw->pv->index_pt_delta_scf] = delta_rho_scf/ppw->pvecback[pba->index_bg_rho_scf];
   PH_variables[0] = delta_rho_scf;
   PH_variables[1] = delta_p_scf; // NEED TO DEFINE ARRAY LOCALLY BEFORE PASSING INTO THIS FUNCTION
@@ -5598,16 +5600,17 @@ void PH_values(
   PH_variables[3] = ca2_scf;
   PH_variables[4] = theta_scf;
   PH_variables[5] = w_scf_f;
+  PH_variables[6] = delta_scf;
 
   // COULD RETURN ALL AUXILIARIES?
   // COULD ALSO DO SAME WITH H AND HPRIME?
 
   // printf("deltaphi_c: %e, deltaphi_s: %e, cs2_func %e, ca2_func %e\n", delta_phi_c, delta_phi_s, cs2_scf, ca2_scf);
 
-  printf("deltaphi_c: %e, deltaphi_s: %e\n", delta_phi_c, delta_phi_s);
+  // printf("deltaphi_c: %e, deltaphi_s: %e\n", delta_phi_c, delta_phi_s);
 
   }
-
+  // PH approx. function ends
 
 
 
@@ -5664,7 +5667,7 @@ int perturbations_initial_conditions(struct precision * ppr,
   /** --> For scalars */
 
   // PH and local variables
-  double PH_variables[6]; // 0=delta_rho, 1=delta_p, 2=cs2_scf, 3=ca2_scf, 4=theta_scf, 5=w_scf_f
+  double PH_variables[7]; // 0=delta_rho, 1=delta_p, 2=cs2_scf, 3=ca2_scf, 4=theta_scf, 5=w_scf_f
   double H = 0.;
   double Hprime = 0.;
   double factor_PH = 0.;
@@ -5978,15 +5981,41 @@ int perturbations_initial_conditions(struct precision * ppr,
             // CHANGES HERE?
             if(ppt->use_delta_scf_over_1plusw == _TRUE_){
               ppw->pv->y[ppw->pv->index_pt_delta_scf] = 0.5*ktau_two*(-4.+3.*cs2_scf)/(32.+6.*cs2_scf+12.*w_scf_f)* ppr->curvature_ini * s2_squared;
+              // PH approx. starts
+              if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+              {
+                PH_values(pba, ppt, ppw, k, PH_variables);
+                ppw->pv->y[ppw->pv->index_pt_delta_scf] = PH_variables[6];
+              }
+              // PH approx. ends
             }
             else{
               ppw->pv->y[ppw->pv->index_pt_delta_scf] = 0.5*ktau_two*(1.+ppw->pvecback[pba->index_bg_w_scf])*(-4.+3.*cs2_scf)/(32.+6.*cs2_scf+12.*w_scf_f)* ppr->curvature_ini * s2_squared;
+              // PH approx. starts
+              if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+              {
+                PH_values(pba, ppt, ppw, k, PH_variables);
+                ppw->pv->y[ppw->pv->index_pt_delta_scf] = PH_variables[6];
+              }
+              // PH approx. ends
             }
             if (ppt->use_big_theta_scf == _TRUE_){
                 ppw->pv->y[ppw->pv->index_pt_big_theta_scf] = -0.5*k*ktau_three*cs2_scf/(32.+6.*cs2_scf+12.*w_scf_f)* ppr->curvature_ini * s2_squared*(1+ppw->pvecback[pba->index_bg_w_scf]);
+                // PH approx. starts
+                if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+                {
+                  ppw->pv->y[ppw->pv->index_pt_big_theta_scf] = PH_variables[4];
+                }
+                // PH approx. ends
             }
             else{
               ppw->pv->y[ppw->pv->index_pt_theta_scf] = -0.5*k*ktau_three*cs2_scf/(32.+6.*cs2_scf+12.*w_scf_f)* ppr->curvature_ini * s2_squared;
+                // PH approx. starts
+                if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+                {
+                  ppw->pv->y[ppw->pv->index_pt_big_theta_scf] = PH_variables[4];
+                }
+                // PH approx. ends
 
             }
           // }
@@ -7298,7 +7327,7 @@ int perturbations_total_stress_energy(
   double Gamma_fld, S, S_prime, theta_t, theta_t_prime, rho_plus_p_theta_fld_prime, rho_plus_p_theta_scf,cs2_scf,ca2_scf,a_over_ac;
   double delta_p_b_over_rho_b;
   // PH and local variables
-  double PH_variables[6]; // 0=delta_rho, 1=delta_p, 2=cs2_scf, 3=ca2_scf, 4=theta_scf, 5=w_scf_f 
+  double PH_variables[7]; // 0=delta_rho, 1=delta_p, 2=cs2_scf, 3=ca2_scf, 4=theta_scf, 5=w_scf_f 
   double H = 0.;
   double Hprime = 0.;
   double factor_PH = 0.;
@@ -7583,7 +7612,7 @@ int perturbations_total_stress_energy(
 
                 // Alternate using the function
                 PH_values(pba, ppt, ppw, k, PH_variables);
-                y[ppw->pv->index_pt_delta_scf] = PH_variables[0]/ppw->pvecback[pba->index_bg_rho_scf];
+                y[ppw->pv->index_pt_delta_scf] = PH_variables[6];
                 printf("deltaphi after switch %e\n", y[ppw->pv->index_pt_phi_scf]);
                 delta_rho_scf = PH_variables[0];
                 delta_p_scf = PH_variables[1];
