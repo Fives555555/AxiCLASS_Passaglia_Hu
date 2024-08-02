@@ -5509,8 +5509,8 @@ void PH_values(
                       struct perturbations * ppt,
                       struct perturbations_workspace * ppw,
                       double k,
-                      double PH_variables[],
-                      double * y
+                      double * y,
+                      double PH_variables[]
                       )
   {
   // PH and local variables
@@ -5941,7 +5941,7 @@ int perturbations_initial_conditions(struct precision * ppr,
                   // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
                   // {
 
-                  //   PH_values(pba, ppt, ppw, k, PH_variables);
+                  //   PH_values(pba, ppt, ppw, k, y, PH_variables);
                   //   cs2_scf = PH_variables[2];
                   //   ca2_scf = PH_variables[3];
                   //   w_scf_f = PH_variables[5];
@@ -5961,7 +5961,7 @@ int perturbations_initial_conditions(struct precision * ppr,
                   // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
                   // {               
 
-                  //   PH_values(pba, ppt, ppw, k, PH_variables);
+                  //   PH_values(pba, ppt, ppw, k, y, PH_variables);
                   //   cs2_scf = PH_variables[2];
                   //   ca2_scf = PH_variables[3];
                   //   w_scf_f = PH_variables[5];
@@ -5989,7 +5989,7 @@ int perturbations_initial_conditions(struct precision * ppr,
               // // PH approx. starts
               // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
               // {
-              //   PH_values(pba, ppt, ppw, k, PH_variables);
+              //   PH_values(pba, ppt, ppw, k, y, PH_variables);
               //   ppw->pv->y[ppw->pv->index_pt_delta_scf] = PH_variables[6];
               // }
               // // PH approx. ends
@@ -5999,7 +5999,7 @@ int perturbations_initial_conditions(struct precision * ppr,
               // // PH approx. starts
               // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
               // {
-              //   PH_values(pba, ppt, ppw, k, PH_variables);
+              //   PH_values(pba, ppt, ppw, k, y, PH_variables);
               //   ppw->pv->y[ppw->pv->index_pt_delta_scf] = PH_variables[6];
               // }
               // // PH approx. ends
@@ -7612,7 +7612,7 @@ int perturbations_total_stress_energy(
                 // y[ppw->pv->index_pt_delta_scf] = delta_rho_scf/ppw->pvecback[pba->index_bg_rho_scf];
                 // Alternate using the function
                 printf("Before switch deltaphi %e, deltarho %e\n", y[ppw->pv->index_pt_phi_scf], delta_rho_scf);
-                PH_values(pba, ppt, ppw, k, PH_variables, y);
+                PH_values(pba, ppt, ppw, k, y, PH_variables);
                 y[ppw->pv->index_pt_delta_scf] = PH_variables[6];
                 delta_rho_scf = PH_variables[0];
                 delta_p_scf = PH_variables[1];
@@ -7652,7 +7652,7 @@ int perturbations_total_stress_energy(
                 // ppw->pvecback[pba->]
 
                 // Alternate using the function
-                PH_values(pba, ppt, ppw, k, PH_variables, y);
+                PH_values(pba, ppt, ppw, k, y, PH_variables);
                 cs2_scf = PH_variables[2];
                 ca2_scf = PH_variables[3];
                 // printf("After switch cs2 %e ca2 %e\n", cs2_scf, ca2_scf);
@@ -7678,7 +7678,7 @@ int perturbations_total_stress_energy(
                 // ppw->pvecback[pba->]
 
                 // Alternate using the function
-                PH_values(pba, ppt, ppw, k, PH_variables, y);
+                PH_values(pba, ppt, ppw, k, y, PH_variables);
                 cs2_scf = PH_variables[2];
                 ca2_scf = PH_variables[3];
                 // printf("After switch cs2 %e ca2 \n", cs2_scf, ca2_scf);
@@ -7801,7 +7801,7 @@ int perturbations_total_stress_energy(
 
             if(pba->scf_evolve_as_fluid_PH == _TRUE_)
             {
-              PH_values(pba, ppt, ppw, k, PH_variables, y);
+              PH_values(pba, ppt, ppw, k, y, PH_variables);
               y[ppw->pv->index_pt_theta_scf] = PH_variables[4];
             }
 
