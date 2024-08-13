@@ -5938,17 +5938,17 @@ int perturbations_initial_conditions(struct precision * ppr,
                   w_scf_f = (pba->n_axion-1)/(pba->n_axion+1) ;
                   cs2_scf = (2*a*a*(pba->n_axion-1)*pow(pba->omega_axion*pow(a,-3*(pba->n_axion-1)/(pba->n_axion+1)),2)+k*k)/(2*a*a*(pba->n_axion+1)*pow(pba->omega_axion*pow(a,-3*(pba->n_axion-1)/(pba->n_axion+1)),2)+k*k);
 
-                  // PH approx starts - CORRECT FOR INITIAL CONDITIONS??
-                  if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-                  {
+                  // // PH approx starts - CORRECT FOR INITIAL CONDITIONS??
+                  // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+                  // {
 
-                    PH_values(pba, ppt, ppw, k, ppw->pv->y[ppw->pv->index_pt_phi_scf], ppw->pv->y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-                    cs2_scf = PH_variables[2];
-                    ca2_scf = PH_variables[3];
-                    w_scf_f = PH_variables[5];
+                  //   PH_values(pba, ppt, ppw, k, ppw->pv->y[ppw->pv->index_pt_phi_scf], ppw->pv->y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
+                  //   cs2_scf = PH_variables[2];
+                  //   ca2_scf = PH_variables[3];
+                  //   w_scf_f = PH_variables[5];
 
-                  }
-                  // PH approx ends
+                  // }
+                  // // PH approx ends
 
 
                 }
@@ -5959,15 +5959,15 @@ int perturbations_initial_conditions(struct precision * ppr,
                   cs2_scf = k*k/(4*pba->m_scf*pba->H0*pba->m_scf*pba->H0*a*a)/(1+k*k/(4*pba->m_scf*pba->H0*pba->m_scf*pba->H0*a*a));
 
                   // PH approx starts - CORRECT FOR INITIAL CONDITIONS??
-                  if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-                  {               
+                  // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+                  // {               
 
-                    PH_values(pba, ppt, ppw, k, ppw->pv->y[ppw->pv->index_pt_phi_scf], ppw->pv->y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-                    cs2_scf = PH_variables[2];
-                    ca2_scf = PH_variables[3];
-                    w_scf_f = PH_variables[5];
-                  }
-                  // PH approx ends
+                  //   PH_values(pba, ppt, ppw, k, ppw->pv->y[ppw->pv->index_pt_phi_scf], ppw->pv->y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
+                  //   cs2_scf = PH_variables[2];
+                  //   ca2_scf = PH_variables[3];
+                  //   w_scf_f = PH_variables[5];
+                  // }
+                  // // PH approx ends
 
                 }
                 else{
@@ -5987,41 +5987,41 @@ int perturbations_initial_conditions(struct precision * ppr,
             // CHANGES HERE?
             if(ppt->use_delta_scf_over_1plusw == _TRUE_){
               ppw->pv->y[ppw->pv->index_pt_delta_scf] = 0.5*ktau_two*(-4.+3.*cs2_scf)/(32.+6.*cs2_scf+12.*w_scf_f)* ppr->curvature_ini * s2_squared;
-              // PH approx. starts
-              if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-              {
-                PH_values(pba, ppt, ppw, k, ppw->pv->y[ppw->pv->index_pt_phi_scf], ppw->pv->y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-                ppw->pv->y[ppw->pv->index_pt_delta_scf] = PH_variables[6];
-              }
-              // PH approx. ends
+              // // PH approx. starts
+              // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+              // {
+              //   PH_values(pba, ppt, ppw, k, ppw->pv->y[ppw->pv->index_pt_phi_scf], ppw->pv->y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
+              //   ppw->pv->y[ppw->pv->index_pt_delta_scf] = PH_variables[6];
+              // }
+              // // PH approx. ends
             }
             else{
               ppw->pv->y[ppw->pv->index_pt_delta_scf] = 0.5*ktau_two*(1.+ppw->pvecback[pba->index_bg_w_scf])*(-4.+3.*cs2_scf)/(32.+6.*cs2_scf+12.*w_scf_f)* ppr->curvature_ini * s2_squared;
-              // PH approx. starts
-              if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-              {
-                PH_values(pba, ppt, ppw, k, ppw->pv->y[ppw->pv->index_pt_phi_scf], ppw->pv->y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-                ppw->pv->y[ppw->pv->index_pt_delta_scf] = PH_variables[6];
-              }
-              // PH approx. ends
+              // // PH approx. starts
+              // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+              // {
+              //   PH_values(pba, ppt, ppw, k, ppw->pv->y[ppw->pv->index_pt_phi_scf], ppw->pv->y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
+              //   ppw->pv->y[ppw->pv->index_pt_delta_scf] = PH_variables[6];
+              // }
+              // // PH approx. ends
             }
             if (ppt->use_big_theta_scf == _TRUE_){
                 ppw->pv->y[ppw->pv->index_pt_big_theta_scf] = -0.5*k*ktau_three*cs2_scf/(32.+6.*cs2_scf+12.*w_scf_f)* ppr->curvature_ini * s2_squared*(1+ppw->pvecback[pba->index_bg_w_scf]);
-                // PH approx. starts
-                if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-                {
-                  ppw->pv->y[ppw->pv->index_pt_big_theta_scf] = PH_variables[4];
-                }
-                // PH approx. ends
+                // // PH approx. starts
+                // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+                // {
+                //   ppw->pv->y[ppw->pv->index_pt_big_theta_scf] = PH_variables[4];
+                // }
+                // // PH approx. ends
             }
             else{
               ppw->pv->y[ppw->pv->index_pt_theta_scf] = -0.5*k*ktau_three*cs2_scf/(32.+6.*cs2_scf+12.*w_scf_f)* ppr->curvature_ini * s2_squared;
-                // PH approx. starts
-                if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-                {
-                  ppw->pv->y[ppw->pv->index_pt_big_theta_scf] = PH_variables[4];
-                }
-                // PH approx. ends
+                // // PH approx. starts
+                // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+                // {
+                //   ppw->pv->y[ppw->pv->index_pt_big_theta_scf] = PH_variables[4];
+                // }
+                // // PH approx. ends
 
             }
           // }
