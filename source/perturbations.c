@@ -5611,9 +5611,9 @@ void PH_values(
   // COULD RETURN ALL AUXILIARIES?
   // COULD ALSO DO SAME WITH H AND HPRIME?
 
-  // printf("deltaphi_c: %e, deltaphi_s: %e, cs2_func %e, ca2_func %e\n", delta_phi_c, delta_phi_s, cs2_scf, ca2_scf);
+  printf("deltaphi_c: %e, deltaphi_s: %e, cs2_func %e, ca2_func %e\n", delta_phi_c, delta_phi_s, cs2_scf, ca2_scf);
 
-  printf("deltaphi_c: %e, deltaphi_s: %e\n", delta_phi_c, delta_phi_s);
+  // printf("deltaphi_c: %e, deltaphi_s: %e\n", delta_phi_c, delta_phi_s);
 
   }
   // PH approx. function ends
@@ -5935,21 +5935,9 @@ int perturbations_initial_conditions(struct precision * ppr,
                   a_over_ac = a/pow(10,pba->log10_axion_ac);
                   ca2 = (pow(a,3)*pow(a_over_ac,3*pba->n_axion/(1+pba->n_axion))*(-1+pba->n_axion)-pow(a_over_ac,3/(1+pba->n_axion))*pow(pba->a_c,3)*(1+3*pba->n_axion))
                         /(pow(a,3)*pow(a_over_ac,3*pba->n_axion/(1+pba->n_axion))+pow(a_over_ac,3/(1+pba->n_axion))*pow(pba->a_c,3))/(1+pba->n_axion);
-                  w_scf_f = (pba->n_axion-1)/(pba->n_axion+1) ;
+                  w_scf_f = (pba->n_axion-1)/(pba->n_axion+1);
                   cs2_scf = (2*a*a*(pba->n_axion-1)*pow(pba->omega_axion*pow(a,-3*(pba->n_axion-1)/(pba->n_axion+1)),2)+k*k)/(2*a*a*(pba->n_axion+1)*pow(pba->omega_axion*pow(a,-3*(pba->n_axion-1)/(pba->n_axion+1)),2)+k*k);
-
-                  // // PH approx starts - CORRECT FOR INITIAL CONDITIONS??
-                  // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-                  // {
-
-                  //   PH_values(pba, ppt, ppw, k, ppw->pv->y[ppw->pv->index_pt_phi_scf], ppw->pv->y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-                  //   cs2_scf = PH_variables[2];
-                  //   ca2_scf = PH_variables[3];
-                  //   w_scf_f = PH_variables[5];
-
-                  // }
-                  // // PH approx ends
-
+                  
 
                 }
                 else if(pba->scf_potential == axionquad){
@@ -5957,17 +5945,6 @@ int perturbations_initial_conditions(struct precision * ppr,
                   // pba->w_scf = ppw->pvecback[pba->index_bg_w_scf]; //
                   w_scf_f = 0;
                   cs2_scf = k*k/(4*pba->m_scf*pba->H0*pba->m_scf*pba->H0*a*a)/(1+k*k/(4*pba->m_scf*pba->H0*pba->m_scf*pba->H0*a*a));
-
-                  // PH approx starts - CORRECT FOR INITIAL CONDITIONS??
-                  // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-                  // {               
-
-                  //   PH_values(pba, ppt, ppw, k, ppw->pv->y[ppw->pv->index_pt_phi_scf], ppw->pv->y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-                  //   cs2_scf = PH_variables[2];
-                  //   ca2_scf = PH_variables[3];
-                  //   w_scf_f = PH_variables[5];
-                  // }
-                  // // PH approx ends
 
                 }
                 else{
@@ -5987,41 +5964,19 @@ int perturbations_initial_conditions(struct precision * ppr,
             // CHANGES HERE?
             if(ppt->use_delta_scf_over_1plusw == _TRUE_){
               ppw->pv->y[ppw->pv->index_pt_delta_scf] = 0.5*ktau_two*(-4.+3.*cs2_scf)/(32.+6.*cs2_scf+12.*w_scf_f)* ppr->curvature_ini * s2_squared;
-              // // PH approx. starts
-              // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-              // {
-              //   PH_values(pba, ppt, ppw, k, ppw->pv->y[ppw->pv->index_pt_phi_scf], ppw->pv->y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-              //   ppw->pv->y[ppw->pv->index_pt_delta_scf] = PH_variables[6];
-              // }
-              // // PH approx. ends
+
             }
             else{
               ppw->pv->y[ppw->pv->index_pt_delta_scf] = 0.5*ktau_two*(1.+ppw->pvecback[pba->index_bg_w_scf])*(-4.+3.*cs2_scf)/(32.+6.*cs2_scf+12.*w_scf_f)* ppr->curvature_ini * s2_squared;
-              // // PH approx. starts
-              // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-              // {
-              //   PH_values(pba, ppt, ppw, k, ppw->pv->y[ppw->pv->index_pt_phi_scf], ppw->pv->y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-              //   ppw->pv->y[ppw->pv->index_pt_delta_scf] = PH_variables[6];
-              // }
-              // // PH approx. ends
+
             }
             if (ppt->use_big_theta_scf == _TRUE_){
                 ppw->pv->y[ppw->pv->index_pt_big_theta_scf] = -0.5*k*ktau_three*cs2_scf/(32.+6.*cs2_scf+12.*w_scf_f)* ppr->curvature_ini * s2_squared*(1+ppw->pvecback[pba->index_bg_w_scf]);
-                // // PH approx. starts
-                // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-                // {
-                //   ppw->pv->y[ppw->pv->index_pt_big_theta_scf] = PH_variables[4];
-                // }
-                // // PH approx. ends
+ 
             }
             else{
               ppw->pv->y[ppw->pv->index_pt_theta_scf] = -0.5*k*ktau_three*cs2_scf/(32.+6.*cs2_scf+12.*w_scf_f)* ppr->curvature_ini * s2_squared;
-                // // PH approx. starts
-                // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-                // {
-                //   ppw->pv->y[ppw->pv->index_pt_big_theta_scf] = PH_variables[4];
-                // }
-                // // PH approx. ends
+
 
             }
           // }
@@ -7606,31 +7561,6 @@ int perturbations_total_stress_energy(
              }
              if(pba->scf_evolve_as_fluid == _TRUE_){
               y[ppw->pv->index_pt_delta_scf] = delta_rho_scf/ppw->pvecback[pba->index_bg_rho_scf];
-              // PH approx starts
-              if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-              {
-                // ppw->pvecmetric[]??????; // use this instead????
-                // y[ppw->pv->index_pt_delta_scf] = delta_rho_scf/ppw->pvecback[pba->index_bg_rho_scf];
-                // Alternate using the function
-                printf("Before switch deltaphi %e, deltarho %e\n", y[ppw->pv->index_pt_phi_scf], delta_rho_scf);
-                PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-                y[ppw->pv->index_pt_delta_scf] = PH_variables[6];
-                delta_rho_scf = PH_variables[0];
-                delta_p_scf = PH_variables[1];
-                printf("After switch deltaphi %e, deltarho %e\n", y[ppw->pv->index_pt_phi_scf], delta_rho_scf);
-                exit(0);
-
-                // rho_aux = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
-                //     (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
-                // weight = 0.5 - 0.5 * tanh(1.5*(pba->m_scf*pba->H0/H - MAX(pba->threshold_scf_fluid_m_over_H - 2, 2)));
-                // if(pba->scf_evolve_as_fluid_PH == _TRUE_){
-                //     pvecback[pba->index_bg_rho_scf] = weight * pvecback[pba->index_bg_rho_scf] + (1 - weight) * rho_aux;
-                //     pvecback[pba->index_bg_p_scf] = pvecback[pba->index_bg_w_scf] * pvecback[pba->index_bg_rho_scf];
-                // }
-                
-              }
-
-              // PH approx ends
              }
           }
           else {
@@ -7642,7 +7572,8 @@ int perturbations_total_stress_energy(
               // printf("a %e a_c %e ca2_scf %e\n", a,pba->a_c,ca2_scf);
               // cs2_scf = (a*pba->m_scf*pba->H0)/k*(pow(1+pow(k/a/(pba->m_scf*pba->H0),2),0.5)-1)+5./4.*pow(ppw->pvecback[pba->index_bg_H]/(pba->m_scf*pba->H0),2);
               // printf("old cs2 %e new cs2 %e \n", k2/(4*pba->m_scf*pba->H0*pba->m_scf*pba->H0*a2)/(1+k2/(4*pba->m_scf*pba->H0*pba->m_scf*pba->H0*a2)), cs2_scf);
-              // printf("Before switch cs2 %e ca2 %e\n", cs2_scf, ca2_scf);
+              
+              printf("Before switch cs2 %e, ca2 %e, w %e\n", cs2_scf, ca2_scf, ppw->pvecback[pba->index_bg_w_scf]);
               // PH approx starts
               if(pba->scf_evolve_as_fluid_PH == _TRUE_)
               {
@@ -7656,7 +7587,8 @@ int perturbations_total_stress_energy(
                 PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
                 cs2_scf = PH_variables[2];
                 ca2_scf = PH_variables[3];
-                // printf("After switch cs2 %e ca2 %e\n", cs2_scf, ca2_scf);
+                printf("After switch cs2 %e ca2 %e, w %e\n", cs2_scf, ca2_scf, ppw->pvecback[pba->index_bg_w_scf]);
+                exit(0);
 
               }
               // PH approx ends
@@ -7668,7 +7600,8 @@ int perturbations_total_stress_energy(
               // printf("pba->log10_axion_ac %e\n", pba->log10_axion_ac);
               ca2_scf = (pow(a,3)*pow(a_over_ac,3*pba->n_axion/(1+pba->n_axion))*(-1+pba->n_axion)-pow(a_over_ac,3/(1+pba->n_axion))*pow(pba->a_c,3)*(1+3*pba->n_axion))
                     /(pow(a,3)*pow(a_over_ac,3*pba->n_axion/(1+pba->n_axion))+pow(a_over_ac,3/(1+pba->n_axion))*pow(pba->a_c,3))/(1+pba->n_axion);
-              // printf("Before switch cs2 %e ca2 \n", cs2_scf, ca2_scf);
+              
+              printf("Before switch cs2 %e ca2 %e, w %e\n", cs2_scf, ca2_scf, ppw->pvecback[pba->index_bg_w_scf]);
               // PH approx starts
               if(pba->scf_evolve_as_fluid_PH == _TRUE_)
               {
@@ -7682,7 +7615,8 @@ int perturbations_total_stress_energy(
                 PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
                 cs2_scf = PH_variables[2];
                 ca2_scf = PH_variables[3];
-                // printf("After switch cs2 %e ca2 \n", cs2_scf, ca2_scf);
+                printf("After switch cs2 %e ca2 %e, w %e\n", cs2_scf, ca2_scf, ppw->pvecback[pba->index_bg_w_scf]);
+                exit(0);
 
               }
               // PH approx ends
@@ -7727,32 +7661,32 @@ int perturbations_total_stress_energy(
                 ca2_scf = -4*pow(a_over_ac,3/2)*pow(pba->a_c,3)
                       /(pow(a,3)*pow(a_over_ac,3/2)+pow(a_over_ac,3/2)*pow(pba->a_c,3))/2;
                 // printf("a %e a_c %e ca2_scf %e\n", a,pba->a_c,ca2_scf);
-                // PH approx starts
-                if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-                {
-                  // Alternate using the function
-                  PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-                  cs2_scf = PH_variables[2];
-                  ca2_scf = PH_variables[3];
+                // // PH approx starts
+                // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+                // {
+                //   // Alternate using the function
+                //   PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
+                //   cs2_scf = PH_variables[2];
+                //   ca2_scf = PH_variables[3];
 
-                }
-                // PH approx ends
+                // }
+                // // PH approx ends
                 }
               else if(pba->scf_potential == axion){
                 cs2_scf = (2*a*a*(pba->n_axion-1)*pow(pba->omega_axion*pow(a,-3*(pba->n_axion-1)/(pba->n_axion+1)),2)+k*k)/(2*a*a*(pba->n_axion+1)*pow(pba->omega_axion*pow(a,-3*(pba->n_axion-1)/(pba->n_axion+1)),2)+k*k);
                 a_over_ac = a/pba->a_c;
                 ca2_scf = (pow(a,3)*pow(a_over_ac,3*pba->n_axion/(1+pba->n_axion))*(-1+pba->n_axion)-pow(a_over_ac,3/(1+pba->n_axion))*pow(pba->a_c,3)*(1+3*pba->n_axion))
                       /(pow(a,3)*pow(a_over_ac,3*pba->n_axion/(1+pba->n_axion))+pow(a_over_ac,3/(1+pba->n_axion))*pow(pba->a_c,3))/(1+pba->n_axion);
-                // PH approx starts
-                if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-                {
-                  // Alternate using the function
-                  PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-                  cs2_scf = PH_variables[2];
-                  ca2_scf = PH_variables[3];
+                // // PH approx starts
+                // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+                // {
+                //   // Alternate using the function
+                //   PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
+                //   cs2_scf = PH_variables[2];
+                //   ca2_scf = PH_variables[3];
 
-                }
-                // PH approx ends
+                // }
+                // // PH approx ends
               }
               // not sure here
               if(ppt->use_delta_scf_over_1plusw) delta_rho_scf = (1+ppw->pvecback[pba->index_bg_w_scf])*ppw->pvecback[pba->index_bg_rho_scf]*y[ppw->pv->index_pt_delta_scf];
@@ -7793,12 +7727,6 @@ int perturbations_total_stress_energy(
           }
           else{
             y[ppw->pv->index_pt_theta_scf] = (1./3.*k*k/a2*ppw->pvecback[pba->index_bg_phi_prime_scf]*y[ppw->pv->index_pt_phi_scf]) / (ppw->pvecback[pba->index_bg_rho_scf]+ppw->pvecback[pba->index_bg_p_scf]);
-
-            if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-            {
-              PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-              y[ppw->pv->index_pt_theta_scf] = PH_variables[4];
-            }
 
           }
         }
@@ -10798,23 +10726,23 @@ int perturbations_derivs(double tau,
                 /(pow(a,3)*pow(a_over_ac,3*pba->n_axion/(1+pba->n_axion))+pow(a_over_ac,3/(1+pba->n_axion))*pow(pba->a_c,3))/(1+pba->n_axion);
           // ca2 = 0;
           // printf("a_over_ac %e cs2_scf %e ca2_scf %e \n", a_over_ac,cs2,ca2);
-          if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-            {
-              // PH approx starts
-              if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-              {
-                // ppw->pvecmetric[]??????; // use this instead????
+          // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+          //   {
+          //     // PH approx starts
+          //     if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+          //     {
+          //       // ppw->pvecmetric[]??????; // use this instead????
 
-                // Alternate using the function
-                PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-                cs2 = PH_variables[2];
-                ca2 = PH_variables[3];
+          //       // Alternate using the function
+          //       PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
+          //       cs2 = PH_variables[2];
+          //       ca2 = PH_variables[3];
                 
-              }
+          //     }
 
-              // PH approx ends
+          //     // PH approx ends
 
-          }
+          // }
 
         }
         else if(pba->scf_potential == axionquad){
@@ -10823,23 +10751,23 @@ int perturbations_derivs(double tau,
             a_over_ac = a/pba->a_c;
             // ca2 = -4*pow(a_over_ac,3/2)*pow(pba->a_c,3)
             //       /(pow(a,3)*pow(a_over_ac,3/2)+pow(a_over_ac,3/2)*pow(pba->a_c,3))/2;
-            if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-              {
-              // PH approx starts
-              if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-              {
-                // ppw->pvecmetric[]??????; // use this instead????
+            // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+            //   {
+            //   // PH approx starts
+            //   if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+            //   {
+            //     // ppw->pvecmetric[]??????; // use this instead????
 
-                // Alternate using the function
-                PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-                cs2 = PH_variables[2];
-                ca2 = PH_variables[3];
+            //     // Alternate using the function
+            //     PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
+            //     cs2 = PH_variables[2];
+            //     ca2 = PH_variables[3];
                 
-              }
+            //   }
 
-              // PH approx ends
+            //   // PH approx ends
 
-            }
+            // }
 
         }
         /*identical to fld above */
