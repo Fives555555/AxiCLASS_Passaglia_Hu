@@ -5511,7 +5511,9 @@ void PH_values(
                       double k,
                       double y1,
                       double y2,
-                      double PH_variables[]
+                      double PH_variables[], 
+                      double delta_p_field, 
+                      double delta_rho_field
                       )
   {
   // PH and local variables
@@ -5562,6 +5564,7 @@ void PH_values(
 
   delta_phi_c = deltaphi_scf;
 
+  // original 
   delta_phi_prime_c = (H*(-8*deltaphiprime_scf*H*pow(k,2) + 4*deltaphi_scf*Hprime*pow(k,2) + 
                     24*pow(a,3)*deltaphi_scf*pow(H,2)*pow(mass,2) + 2*hL_prime*Hprime*phi_prime_c + 
                     pow(a,2)*H*(18*deltaphiprime_scf*pow(H,2) + hL_prime*mass*(4*mass*phi_c + 
@@ -5569,18 +5572,35 @@ void PH_values(
                     3*pow(H,2)*hL_prime*phi_prime_c + 2*hL_prime*Hprime*mass*phi_s - 4*H*hL_prime*mass*phi_prime_s)))/
                     (-4*a*(pow(Hprime,2) + 2*pow(H,2)*pow(k,2)) + pow(a,3)*(9*pow(H,4) - 16*pow(H,2)*pow(mass,2))); // seems to be correct
 
-  delta_phi_s = (deltaphiprime_scf - delta_phi_prime_c)/(a*mass); //still not sure if this is giving the same answer as below
-
-  // delta_phi_s = (24*pow(a,3)*deltaphi_scf*pow(H,3)*pow(mass,2) + 2*Hprime*(2*deltaphiprime_scf*Hprime + 2*deltaphi_scf*H*pow(k,2) + 
-  //               H*hL_prime*phi_prime_c) + pow(a,2)*pow(H,2)*(deltaphiprime_scf*(9*pow(H,2) + 16*pow(mass,2)) + 
-  //               hL_prime*mass*(4*mass*phi_c + 3*H*phi_s)) + a*H*(12*deltaphiprime_scf*H*Hprime + 
-  //               6*deltaphi_scf*pow(H,2)*pow(k,2) + 3*pow(H,2)*hL_prime*phi_prime_c + 2*hL_prime*Hprime*mass*phi_s - 
-  //               4*H*hL_prime*mass*phi_prime_s))/(a*mass*(4*pow(Hprime,2) + pow(H,2)*(8*pow(k,2) + 
-  //               pow(a,2)*(-9*pow(H,2) + 16*pow(mass,2))))); //seems to be correct
-
-
+  // test D_* change
+  // delta_phi_prime_c = (H*(8*deltaphiprime_scf*H*pow(k,2) - 2*a*(3*pow(H,2) + Hprime)*(2*deltaphi_scf*pow(k,2) + 
+  //                     hL_prime*phi_prime_c) + pow(a,2)*(H*(-12*deltaphiprime_scf*(3*pow(H,2) + Hprime) + 
+  //                     2*deltaphi_scf*H*pow(k,2) - 4*hL_prime*pow(mass,2)*phi_c + H*hL_prime*phi_prime_c) - 
+  //                     2*hL_prime*(3*pow(H,2) + Hprime)*mass*phi_s) + pow(a,3)*pow(H,2)*(6*deltaphiprime_scf*H + 
+  //                     mass*(-24*deltaphi_scf*mass + hL_prime*phi_s)) + 4*a*H*hL_prime*mass*phi_prime_s))/(pow(a,5)*pow(H,4) 
+  //                     - 2*pow(a,4)*(3*pow(H,4) + 2*pow(H,2)*Hprime) + 8*a*pow(H,2)*pow(k,2) + 4*pow(a,3)*(pow(Hprime,2) + 
+  //                     pow(H,2)*(3*Hprime + 4*pow(mass,2))));
 
 
+  // delta_phi_s = (deltaphiprime_scf - delta_phi_prime_c)/(a*mass); //still not sure if this is giving the same answer as below
+
+  // original
+  delta_phi_s = (24*pow(a,3)*deltaphi_scf*pow(H,3)*pow(mass,2) + 2*Hprime*(2*deltaphiprime_scf*Hprime + 2*deltaphi_scf*H*pow(k,2) + 
+                H*hL_prime*phi_prime_c) + pow(a,2)*pow(H,2)*(deltaphiprime_scf*(9*pow(H,2) + 16*pow(mass,2)) + 
+                hL_prime*mass*(4*mass*phi_c + 3*H*phi_s)) + a*H*(12*deltaphiprime_scf*H*Hprime + 
+                6*deltaphi_scf*pow(H,2)*pow(k,2) + 3*pow(H,2)*hL_prime*phi_prime_c + 2*hL_prime*Hprime*mass*phi_s - 
+                4*H*hL_prime*mass*phi_prime_s))/(a*mass*(4*pow(Hprime,2) + pow(H,2)*(8*pow(k,2) + 
+                pow(a,2)*(-9*pow(H,2) + 16*pow(mass,2))))); //seems to be correct
+
+  // test D_* change
+  // delta_phi_s = (pow(a,3)*deltaphiprime_scf*pow(H,4) - pow(a,2)*pow(H,2)*(4*deltaphiprime_scf*(3*pow(H,2) + Hprime) + 
+  //               H*mass*(-24*deltaphi_scf*mass + hL_prime*phi_s)) + a*(4*deltaphiprime_scf*(pow(3*pow(H,2) + Hprime,2) + 
+  //               4*pow(H,2)*pow(mass,2)) + H*(-(H*(2*deltaphi_scf*H*pow(k,2) - 4*hL_prime*pow(mass,2)*phi_c + H*hL_prime*phi_prime_c)) + 
+  //               2*hL_prime*(3*pow(H,2) + Hprime)*mass*phi_s)) + 2*H*((3*pow(H,2) + Hprime)*(2*deltaphi_scf*pow(k,2) + 
+  //               hL_prime*phi_prime_c) - 2*H*hL_prime*mass*phi_prime_s))/(mass*(pow(a,4)*pow(H,4) - 2*pow(a,3)*(3*pow(H,4) + 
+  //               2*pow(H,2)*Hprime) + 8*pow(H,2)*pow(k,2) + 4*pow(a,2)*(pow(Hprime,2) + pow(H,2)*(3*Hprime + 4*pow(mass,2)))));
+
+  // original
   delta_phi_prime_s = -((H*(18*pow(a,4)*deltaphi_scf*pow(H,3)*pow(mass,2) + 2*pow(k,2)*(2*deltaphiprime_scf*Hprime + 
                     2*deltaphi_scf*H*pow(k,2) + H*hL_prime*phi_prime_c) + pow(a,3)*H*pow(mass,2)*(24*deltaphiprime_scf*H - 
                     12*deltaphi_scf*Hprime + 3*H*hL_prime*phi_c + 4*hL_prime*mass*phi_s) + 2*a*(H*pow(k,2)*(3*deltaphiprime_scf*H + 
@@ -5589,19 +5609,36 @@ void PH_values(
                     H*hL_prime*(4*mass*phi_prime_c - 3*H*phi_prime_s))))/(pow(a,2)*mass*(4*pow(Hprime,2) + 
                     pow(H,2)*(8*pow(k,2) + pow(a,2)*(-9*pow(H,2) + 16*pow(mass,2)))))); //seems to be correct
 
+  // test D_* change
+  // delta_phi_prime_s = -((H*(6*pow(a,5)*deltaphi_scf*pow(H,3)*pow(mass,2) + pow(a,4)*H*pow(mass,2)*(-12*deltaphi_scf*Hprime + 
+  //                     H*hL_prime*phi_c) + 2*H*pow(k,2)*(2*deltaphi_scf*pow(k,2) + hL_prime*phi_prime_c) + 
+  //                     2*a*pow(k,2)*(2*deltaphiprime_scf*(3*pow(H,2) + Hprime) + H*hL_prime*mass*phi_s) + 
+  //                     pow(a,3)*mass*(24*deltaphiprime_scf*pow(H,2)*mass - hL_prime*(2*Hprime*mass*phi_c - 4*H*pow(mass,2)*phi_s +
+  //                     pow(H,2)*phi_prime_s)) + pow(a,2)*(-2*deltaphiprime_scf*pow(H,2)*pow(k,2) + 
+  //                     2*mass*(4*deltaphi_scf*H*pow(k,2)*mass + 2*H*hL_prime*mass*phi_prime_c + hL_prime*Hprime*phi_prime_s))))/
+  //                     (pow(a,2)*mass*(pow(a,4)*pow(H,4) - 2*pow(a,3)*(3*pow(H,4) + 2*pow(H,2)*Hprime) + 8*pow(H,2)*pow(k,2) + 
+  //                     4*pow(a,2)*(pow(Hprime,2) + pow(H,2)*(3*Hprime + 4*pow(mass,2))))));
+
+
+
+
   delta_rho_scf = (mass*a*phi_s*delta_phi_prime_c - mass*a*phi_c*delta_phi_prime_s + phi_prime_c*delta_phi_prime_c + 
                   phi_prime_s*delta_phi_prime_s + delta_phi_s*(2*pow(mass*a,2)*phi_s + mass*a*phi_prime_c) + 
                   delta_phi_c*(2*pow(mass*a,2)*phi_c - mass*a*phi_prime_s))/(2*pow(a,2)); // seems to be correct
 
   delta_p_scf = delta_rho_scf - pow(mass,2)*(phi_c*delta_phi_c + phi_s*delta_phi_s); // seems to be correct
 
-  cs2_scf = (delta_p_scf/delta_rho_scf) + 1.25 * pow(H/(mass),2); //deltap/deltarho should come from the true field and not the auxiliaries
+  cs2_scf = (delta_p_field/delta_rho_field) + 1.25 * pow(H/(mass),2); //deltap/deltarho should come from the true field and not the auxiliaries (done)
 
-  ca2_scf = 1.5*pow(H/(mass),2) - (-3*H*Hprime/pow(mass,2))/(3*H*(1 + 1.5*pow(H/(mass),2)));
-  // should be: w - (Hprime)/(am^2(1+w))
+  // original
+  // ca2_scf = 1.5*pow((H/mass),2) - (-3*H*Hprime/pow(mass,2))/(3*H*(1 + 1.5*pow((H/mass),2)));
+  // should be: w - (Hprime)/(am^2(1+w)) (done below)
+
+  // test
+  ca2_scf = 1.5*pow((H/mass),2) - (Hprime)/(a*pow(mass, 2)*(1 + 1.5*pow((H/mass),2)));
 
   theta_scf = (k*k*mass/(2*a)) * (delta_phi_c*(phi_s + phi_prime_c/(a*mass)) + delta_phi_s*(-phi_c + phi_prime_s/(a*mass))) 
-            / (ppw->pvecback[pba->index_bg_rho_scf] + ppw->pvecback[pba->index_bg_p_scf]); //the phi primes need to also be divided by mass
+            / (ppw->pvecback[pba->index_bg_rho_scf] + ppw->pvecback[pba->index_bg_p_scf]); //the phi primes need to also be divided by mass (done)
 
   // printf("phi_c: %e, phi_s: %e, phiprime_c: %e, phiprime_s: %e\n", phi_c, phi_s, phi_prime_c, phi_prime_s);
   // printf("deltaphi_c: %e, deltaphi_s: %e, deltaphiprime_c: %e, deltaphiprime_s: %e\n", delta_phi_c, delta_phi_s, delta_phi_prime_c, delta_phi_prime_s);
@@ -7601,7 +7638,7 @@ int perturbations_total_stress_energy(
               // PH approx starts
               if(pba->scf_evolve_as_fluid_PH == _TRUE_)
               {
-                PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
+                PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables, delta_p_scf, delta_rho_scf);
                 cs2_scf = PH_variables[2];
                 ca2_scf = PH_variables[3];
                 // printf("After switch cs2 %e ca2 %e, w %e\n", cs2_scf, ca2_scf, ppw->pvecback[pba->index_bg_w_scf]);
@@ -7621,7 +7658,7 @@ int perturbations_total_stress_energy(
               // PH approx starts
               if(pba->scf_evolve_as_fluid_PH == _TRUE_)
               {
-                PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
+                PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables, delta_p_scf, delta_rho_scf);
                 cs2_scf = PH_variables[2];
                 ca2_scf = PH_variables[3];
                 // printf("After switch cs2 %e ca2 %e, w %e\n", cs2_scf, ca2_scf, ppw->pvecback[pba->index_bg_w_scf]);
@@ -7756,7 +7793,8 @@ int perturbations_total_stress_energy(
         else {
           rho_plus_p_theta_scf =  (1.+ppw->pvecback[pba->index_bg_w_scf])*ppw->pvecback[pba->index_bg_rho_scf]*y[ppw->pv->index_pt_theta_scf];
           // PH testing starts
-          PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
+          PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables, delta_p_scf, delta_rho_scf);
+
           printf("a: %e, Theta: %e, PH theta: %e\n", a, y[ppw->pv->index_pt_theta_scf], PH_variables[4]);
           printf("phi_c: %e, phi_s: %e, phiprime_c: %e, phiprime_s: %e\n", PH_variables[7], PH_variables[8], 
                         PH_variables[9], PH_variables[10]);
