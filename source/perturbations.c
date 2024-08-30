@@ -5536,8 +5536,8 @@ void PH_values(
   double w_scf_f = 0.;
   double delta_scf = 0.;
 
-  double phi_scf = ppw->pvecback[pba->index_bi_phi_scf];
-  double phiprime_scf = ppw->pvecback[pba->index_bi_phi_prime_scf];
+  double phi_scf = ppw->pvecback[pba->index_bg_phi_scf];
+  double phiprime_scf = ppw->pvecback[pba->index_bg_phi_prime_scf];
   double deltaphi_scf = y1;
   double deltaphiprime_scf = y2;
   double mass = pba->m_scf*pba->H0;
@@ -7812,6 +7812,13 @@ int perturbations_total_stress_energy(
 
           printf("delta_rho: %e, PH deltarho: %e\n", delta_rho_scf, PH_variables[0]);
           // printf("delta: %e, PH delta: %e\n", y[ppw->pv->index_pt_delta_scf], PH_variables[6]);
+
+  // double phi_scf = ppw->pvecback[pba->index_bi_phi_scf];
+  // double phiprime_scf = ppw->pvecback[pba->index_bi_phi_prime_scf];
+          printf("phi_bg %e, phi_bi %e\n", ppw->pvecback[pba->index_bg_phi_scf], ppw->pvecback[pba->index_bi_phi_scf]);
+          printf("phiprime_bg %e, phiprime_bi %e\n", ppw->pvecback[pba->index_bg_phi_prime_scf], ppw->pvecback[pba->index_bi_phi_prime_scf]);
+
+
           exit(0);
 
 
