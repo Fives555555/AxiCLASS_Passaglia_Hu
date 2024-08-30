@@ -7804,8 +7804,8 @@ int perturbations_total_stress_energy(
                         PH_variables[9], PH_variables[10]);
           printf("deltaphi_c: %e, deltaphi_s: %e, deltaphiprime_c: %e, deltaphiprime_s: %e\n", PH_variables[11], 
                         PH_variables[12], PH_variables[13], PH_variables[14]);
-          printf("phi: %e, phiprime: %e, deltaphi: %e, deltaphiprime: %e\n", ppw->pvecback[pba->index_bi_phi_scf], 
-                        ppw->pvecback[pba->index_bi_phi_prime_scf], y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf]);
+          printf("phi: %e, phiprime: %e, deltaphi: %e, deltaphiprime: %e\n", ppw->pvecback[pba->index_bg_phi_scf], 
+                        ppw->pvecback[pba->index_bg_phi_prime_scf], y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf]);
           printf("bg_rho: %e, bg_p: %e\n", ppw->pvecback[pba->index_bg_rho_scf], ppw->pvecback[pba->index_bg_p_scf]);
           // (k*k*pba->m_scf*pba->H0/(2*a))
           printf("k: %e, m: %e, H0: %e\n", k, pba->m_scf, pba->H0);
