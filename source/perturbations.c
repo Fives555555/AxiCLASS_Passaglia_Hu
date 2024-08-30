@@ -5565,14 +5565,14 @@ void PH_values(
   delta_phi_c = deltaphi_scf;
 
   // original 
-  delta_phi_prime_c = (H*(-8*deltaphiprime_scf*H*pow(k,2) + 4*deltaphi_scf*Hprime*pow(k,2) + 
+  delta_phi_prime_c = a*(H*(-8*deltaphiprime_scf*H*pow(k,2) + 4*deltaphi_scf*Hprime*pow(k,2) + 
                     24*pow(a,3)*deltaphi_scf*pow(H,2)*pow(mass,2) + 2*hL_prime*Hprime*phi_prime_c + 
                     pow(a,2)*H*(18*deltaphiprime_scf*pow(H,2) + hL_prime*mass*(4*mass*phi_c + 
                     3*H*phi_s)) + a*(12*deltaphiprime_scf*H*Hprime + 6*deltaphi_scf*pow(H,2)*pow(k,2) + 
                     3*pow(H,2)*hL_prime*phi_prime_c + 2*hL_prime*Hprime*mass*phi_s - 4*H*hL_prime*mass*phi_prime_s)))/
                     (-4*a*(pow(Hprime,2) + 2*pow(H,2)*pow(k,2)) + pow(a,3)*(9*pow(H,4) - 16*pow(H,2)*pow(mass,2))); // seems to be correct
 
-  // test D_* change
+  // // test D_* change
   // delta_phi_prime_c = (H*(8*deltaphiprime_scf*H*pow(k,2) - 2*a*(3*pow(H,2) + Hprime)*(2*deltaphi_scf*pow(k,2) + 
   //                     hL_prime*phi_prime_c) + pow(a,2)*(H*(-12*deltaphiprime_scf*(3*pow(H,2) + Hprime) + 
   //                     2*deltaphi_scf*H*pow(k,2) - 4*hL_prime*pow(mass,2)*phi_c + H*hL_prime*phi_prime_c) - 
@@ -5582,7 +5582,9 @@ void PH_values(
   //                     pow(H,2)*(3*Hprime + 4*pow(mass,2))));
 
 
-  // delta_phi_s = (deltaphiprime_scf - delta_phi_prime_c)/(a*mass); //still not sure if this is giving the same answer as below
+  delta_phi_s = (deltaphiprime_scf - delta_phi_prime_c)/(a*mass); 
+
+  printf("delta_phi_s %e \n", delta_phi_s);
 
   // original
   delta_phi_s = (24*pow(a,3)*deltaphi_scf*pow(H,3)*pow(mass,2) + 2*Hprime*(2*deltaphiprime_scf*Hprime + 2*deltaphi_scf*H*pow(k,2) + 
@@ -5591,6 +5593,8 @@ void PH_values(
                 6*deltaphi_scf*pow(H,2)*pow(k,2) + 3*pow(H,2)*hL_prime*phi_prime_c + 2*hL_prime*Hprime*mass*phi_s - 
                 4*H*hL_prime*mass*phi_prime_s))/(a*mass*(4*pow(Hprime,2) + pow(H,2)*(8*pow(k,2) + 
                 pow(a,2)*(-9*pow(H,2) + 16*pow(mass,2))))); //seems to be correct
+
+  printf("delta_phi_s_expanded %e \n", delta_phi_s);
 
   // test D_* change
   // delta_phi_s = (pow(a,3)*deltaphiprime_scf*pow(H,4) - pow(a,2)*pow(H,2)*(4*deltaphiprime_scf*(3*pow(H,2) + Hprime) + 
@@ -5601,7 +5605,7 @@ void PH_values(
   //               2*pow(H,2)*Hprime) + 8*pow(H,2)*pow(k,2) + 4*pow(a,2)*(pow(Hprime,2) + pow(H,2)*(3*Hprime + 4*pow(mass,2)))));
 
   // original
-  delta_phi_prime_s = -((H*(18*pow(a,4)*deltaphi_scf*pow(H,3)*pow(mass,2) + 2*pow(k,2)*(2*deltaphiprime_scf*Hprime + 
+  delta_phi_prime_s = -a*((H*(18*pow(a,4)*deltaphi_scf*pow(H,3)*pow(mass,2) + 2*pow(k,2)*(2*deltaphiprime_scf*Hprime + 
                     2*deltaphi_scf*H*pow(k,2) + H*hL_prime*phi_prime_c) + pow(a,3)*H*pow(mass,2)*(24*deltaphiprime_scf*H - 
                     12*deltaphi_scf*Hprime + 3*H*hL_prime*phi_c + 4*hL_prime*mass*phi_s) + 2*a*(H*pow(k,2)*(3*deltaphiprime_scf*H + 
                     hL_prime*mass*phi_s) + hL_prime*Hprime*mass*phi_prime_s) + 
