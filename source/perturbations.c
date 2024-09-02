@@ -5626,11 +5626,11 @@ void PH_values(
 
 
 
-  delta_rho_scf = (mass*a*phi_s*delta_phi_prime_c - mass*a*phi_c*delta_phi_prime_s + phi_prime_c*delta_phi_prime_c + 
+  delta_rho_scf = (1./3.)*(mass*a*phi_s*delta_phi_prime_c - mass*a*phi_c*delta_phi_prime_s + phi_prime_c*delta_phi_prime_c + 
                   phi_prime_s*delta_phi_prime_s + delta_phi_s*(2*pow(mass*a,2)*phi_s + mass*a*phi_prime_c) + 
                   delta_phi_c*(2*pow(mass*a,2)*phi_c - mass*a*phi_prime_s))/(2*pow(a,2)); // seems to be correct
 
-  delta_p_scf = delta_rho_scf - pow(mass,2)*(phi_c*delta_phi_c + phi_s*delta_phi_s); // seems to be correct
+  delta_p_scf = delta_rho_scf - (1./3.)*pow(mass,2)*(phi_c*delta_phi_c + phi_s*delta_phi_s); // seems to be correct
 
   cs2_scf = (delta_p_field/delta_rho_field) + 1.25 * pow(H/(mass),2); //deltap/deltarho should come from the true field and not the auxiliaries (done)
 
@@ -5641,7 +5641,7 @@ void PH_values(
   // test
   ca2_scf = 1.5*pow((H/mass),2) - (Hprime)/(a*pow(mass, 2)*(1 + 1.5*pow((H/mass),2)));
 
-  theta_scf = (k*k*mass/(2*a)) * (delta_phi_c*(phi_s + phi_prime_c/(a*mass)) + delta_phi_s*(-phi_c + phi_prime_s/(a*mass))) 
+  theta_scf = (1./3.)*(k*k*mass/(2*a)) * (delta_phi_c*(phi_s + phi_prime_c/(a*mass)) + delta_phi_s*(-phi_c + phi_prime_s/(a*mass))) 
             / (ppw->pvecback[pba->index_bg_rho_scf] + ppw->pvecback[pba->index_bg_p_scf]); //the phi primes need to also be divided by mass (done)
 
   // printf("phi_c: %e, phi_s: %e, phiprime_c: %e, phiprime_s: %e\n", phi_c, phi_s, phi_prime_c, phi_prime_s);
@@ -5664,7 +5664,7 @@ void PH_values(
   PH_variables[4] = theta_scf;
   PH_variables[5] = w_scf_f;
   PH_variables[6] = delta_scf;
-  //add in the auxiliaries so they can be checked?
+  // add in the auxiliaries so they can be checked?
   PH_variables[7] = phi_c;
   PH_variables[8] = phi_s;
   PH_variables[9] = phi_prime_c;
@@ -7810,7 +7810,7 @@ int perturbations_total_stress_energy(
           // (k*k*pba->m_scf*pba->H0/(2*a))
           printf("k: %e, m: %e, H0: %e\n", k, pba->m_scf, pba->H0);
 
-          printf("delta_rho: %e, PH deltarho: %e\n", delta_rho_scf, PH_variables[0]);
+          printf("delta_rho %e, PH_delta_rho %e, delta_p %e, PH_delta_p %e \n", delta_rho_scf, PH_variables[0], delta_p_scf, PH_variables[1]);
           // printf("delta: %e, PH delta: %e\n", y[ppw->pv->index_pt_delta_scf], PH_variables[6]);
 
           // printf("phi_bg %e, phi_bi %e\n", ppw->pvecback[pba->index_bg_phi_scf], ppw->pvecback[pba->index_bi_phi_scf]);
