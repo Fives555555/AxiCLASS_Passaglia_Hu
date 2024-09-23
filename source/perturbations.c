@@ -5564,73 +5564,39 @@ void PH_values(
 
   delta_phi_c = deltaphi_scf;
 
-  // original 
   delta_phi_prime_c = a*(H*(-8*deltaphiprime_scf*H*pow(k,2) + 4*deltaphi_scf*Hprime*pow(k,2) + 
                     24*pow(a,3)*deltaphi_scf*pow(H,2)*pow(mass,2) + 2*hL_prime*Hprime*phi_prime_c + 
                     pow(a,2)*H*(18*deltaphiprime_scf*pow(H,2) + hL_prime*mass*(4*mass*phi_c + 
                     3*H*phi_s)) + a*(12*deltaphiprime_scf*H*Hprime + 6*deltaphi_scf*pow(H,2)*pow(k,2) + 
                     3*pow(H,2)*hL_prime*phi_prime_c + 2*hL_prime*Hprime*mass*phi_s - 4*H*hL_prime*mass*phi_prime_s)))/
-                    (-4*a*(pow(Hprime,2) + 2*pow(H,2)*pow(k,2)) + pow(a,3)*(9*pow(H,4) - 16*pow(H,2)*pow(mass,2))); // seems to be correct
+                    (-4*a*(pow(Hprime,2) + 2*pow(H,2)*pow(k,2)) + pow(a,3)*(9*pow(H,4) - 16*pow(H,2)*pow(mass,2)));
 
-  // // test D_* change
-  // delta_phi_prime_c = (H*(8*deltaphiprime_scf*H*pow(k,2) - 2*a*(3*pow(H,2) + Hprime)*(2*deltaphi_scf*pow(k,2) + 
-  //                     hL_prime*phi_prime_c) + pow(a,2)*(H*(-12*deltaphiprime_scf*(3*pow(H,2) + Hprime) + 
-  //                     2*deltaphi_scf*H*pow(k,2) - 4*hL_prime*pow(mass,2)*phi_c + H*hL_prime*phi_prime_c) - 
-  //                     2*hL_prime*(3*pow(H,2) + Hprime)*mass*phi_s) + pow(a,3)*pow(H,2)*(6*deltaphiprime_scf*H + 
-  //                     mass*(-24*deltaphi_scf*mass + hL_prime*phi_s)) + 4*a*H*hL_prime*mass*phi_prime_s))/(pow(a,5)*pow(H,4) 
-  //                     - 2*pow(a,4)*(3*pow(H,4) + 2*pow(H,2)*Hprime) + 8*a*pow(H,2)*pow(k,2) + 4*pow(a,3)*(pow(Hprime,2) + 
-  //                     pow(H,2)*(3*Hprime + 4*pow(mass,2))));
-
-
-  delta_phi_s = (deltaphiprime_scf - delta_phi_prime_c)/(a*mass); 
+  delta_phi_s = (deltaphiprime_scf - delta_phi_prime_c)/(a*mass); // LG remove below since the same
 
   // printf("delta_phi_s %e \n", delta_phi_s);
 
-  // original
   delta_phi_s = (24*pow(a,3)*deltaphi_scf*pow(H,3)*pow(mass,2) + 2*Hprime*(2*deltaphiprime_scf*Hprime + 2*deltaphi_scf*H*pow(k,2) + 
                 H*hL_prime*phi_prime_c) + pow(a,2)*pow(H,2)*(deltaphiprime_scf*(9*pow(H,2) + 16*pow(mass,2)) + 
                 hL_prime*mass*(4*mass*phi_c + 3*H*phi_s)) + a*H*(12*deltaphiprime_scf*H*Hprime + 
                 6*deltaphi_scf*pow(H,2)*pow(k,2) + 3*pow(H,2)*hL_prime*phi_prime_c + 2*hL_prime*Hprime*mass*phi_s - 
                 4*H*hL_prime*mass*phi_prime_s))/(a*mass*(4*pow(Hprime,2) + pow(H,2)*(8*pow(k,2) + 
-                pow(a,2)*(-9*pow(H,2) + 16*pow(mass,2))))); //seems to be correct
+                pow(a,2)*(-9*pow(H,2) + 16*pow(mass,2))))); 
 
   // printf("delta_phi_s_expanded %e \n", delta_phi_s);
 
-  // test D_* change
-  // delta_phi_s = (pow(a,3)*deltaphiprime_scf*pow(H,4) - pow(a,2)*pow(H,2)*(4*deltaphiprime_scf*(3*pow(H,2) + Hprime) + 
-  //               H*mass*(-24*deltaphi_scf*mass + hL_prime*phi_s)) + a*(4*deltaphiprime_scf*(pow(3*pow(H,2) + Hprime,2) + 
-  //               4*pow(H,2)*pow(mass,2)) + H*(-(H*(2*deltaphi_scf*H*pow(k,2) - 4*hL_prime*pow(mass,2)*phi_c + H*hL_prime*phi_prime_c)) + 
-  //               2*hL_prime*(3*pow(H,2) + Hprime)*mass*phi_s)) + 2*H*((3*pow(H,2) + Hprime)*(2*deltaphi_scf*pow(k,2) + 
-  //               hL_prime*phi_prime_c) - 2*H*hL_prime*mass*phi_prime_s))/(mass*(pow(a,4)*pow(H,4) - 2*pow(a,3)*(3*pow(H,4) + 
-  //               2*pow(H,2)*Hprime) + 8*pow(H,2)*pow(k,2) + 4*pow(a,2)*(pow(Hprime,2) + pow(H,2)*(3*Hprime + 4*pow(mass,2)))));
-
-  // original
   delta_phi_prime_s = -a*((H*(18*pow(a,4)*deltaphi_scf*pow(H,3)*pow(mass,2) + 2*pow(k,2)*(2*deltaphiprime_scf*Hprime + 
                     2*deltaphi_scf*H*pow(k,2) + H*hL_prime*phi_prime_c) + pow(a,3)*H*pow(mass,2)*(24*deltaphiprime_scf*H - 
                     12*deltaphi_scf*Hprime + 3*H*hL_prime*phi_c + 4*hL_prime*mass*phi_s) + 2*a*(H*pow(k,2)*(3*deltaphiprime_scf*H + 
                     hL_prime*mass*phi_s) + hL_prime*Hprime*mass*phi_prime_s) + 
                     pow(a,2)*mass*(8*deltaphi_scf*H*pow(k,2)*mass - 2*hL_prime*Hprime*mass*phi_c + 
                     H*hL_prime*(4*mass*phi_prime_c - 3*H*phi_prime_s))))/(pow(a,2)*mass*(4*pow(Hprime,2) + 
-                    pow(H,2)*(8*pow(k,2) + pow(a,2)*(-9*pow(H,2) + 16*pow(mass,2)))))); //seems to be correct
-
-  // test D_* change
-  // delta_phi_prime_s = -((H*(6*pow(a,5)*deltaphi_scf*pow(H,3)*pow(mass,2) + pow(a,4)*H*pow(mass,2)*(-12*deltaphi_scf*Hprime + 
-  //                     H*hL_prime*phi_c) + 2*H*pow(k,2)*(2*deltaphi_scf*pow(k,2) + hL_prime*phi_prime_c) + 
-  //                     2*a*pow(k,2)*(2*deltaphiprime_scf*(3*pow(H,2) + Hprime) + H*hL_prime*mass*phi_s) + 
-  //                     pow(a,3)*mass*(24*deltaphiprime_scf*pow(H,2)*mass - hL_prime*(2*Hprime*mass*phi_c - 4*H*pow(mass,2)*phi_s +
-  //                     pow(H,2)*phi_prime_s)) + pow(a,2)*(-2*deltaphiprime_scf*pow(H,2)*pow(k,2) + 
-  //                     2*mass*(4*deltaphi_scf*H*pow(k,2)*mass + 2*H*hL_prime*mass*phi_prime_c + hL_prime*Hprime*phi_prime_s))))/
-  //                     (pow(a,2)*mass*(pow(a,4)*pow(H,4) - 2*pow(a,3)*(3*pow(H,4) + 2*pow(H,2)*Hprime) + 8*pow(H,2)*pow(k,2) + 
-  //                     4*pow(a,2)*(pow(Hprime,2) + pow(H,2)*(3*Hprime + 4*pow(mass,2))))));
-
-
-
+                    pow(H,2)*(8*pow(k,2) + pow(a,2)*(-9*pow(H,2) + 16*pow(mass,2)))))); 
 
   delta_rho_scf = (1./3.)*(mass*a*phi_s*delta_phi_prime_c - mass*a*phi_c*delta_phi_prime_s + phi_prime_c*delta_phi_prime_c + 
                   phi_prime_s*delta_phi_prime_s + delta_phi_s*(2*pow(mass*a,2)*phi_s + mass*a*phi_prime_c) + 
-                  delta_phi_c*(2*pow(mass*a,2)*phi_c - mass*a*phi_prime_s))/(2*pow(a,2)); // seems to be correct
+                  delta_phi_c*(2*pow(mass*a,2)*phi_c - mass*a*phi_prime_s))/(2*pow(a,2)); 
 
-  delta_p_scf = delta_rho_scf - (1./3.)*pow(mass,2)*(phi_c*delta_phi_c + phi_s*delta_phi_s); // seems to be correct
+  delta_p_scf = delta_rho_scf - (1./3.)*pow(mass,2)*(phi_c*delta_phi_c + phi_s*delta_phi_s); 
 
   cs2_scf = (delta_p_field/delta_rho_field) + 1.25 * pow(H/(mass),2); //deltap/deltarho should come from the true field and not the auxiliaries (done)
 
