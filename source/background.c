@@ -418,6 +418,7 @@ int background_functions(
   double H;
   double Hprime;
   double weight;
+  double weight_midpoint;
   double rho_aux;
   double rho_actual;
 
@@ -429,6 +430,7 @@ int background_functions(
   H = 0.;
   Hprime = 0.;
   weight = 0.;
+  weight_midpoint = 0.;
   rho_aux = 0;
   rho_actual = 0;
 
@@ -619,7 +621,10 @@ int background_functions(
     phi_prime_s = factor*a*pba->m_scf*pba->H0*(3*pow(H,2)*phi - 2*Hprime*phi/a + 4*H*phi_prime/a);
     rho_aux = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
         (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
-    weight = 0.5 - 0.5 * tanh(1.5*(pba->m_scf*pba->H0/H - MAX(pba->threshold_scf_fluid_m_over_H - 2, 2)));
+    // weight = 0.5 - 0.5 * tanh(1.5*(pba->m_scf*pba->H0/H - MAX(pba->threshold_scf_fluid_m_over_H - 2, 2)));
+    weight_midpoint = pba->threshold_scf_fluid_m_over_H - (atanh(0.98)/10);
+    weight = 0.5 - 0.5 * tanh(10*(pba->m_scf*pba->H0/H - weight_midpoint));
+    // printf("BG Weight before: %e, scale factor: %e, switch: %e, BG H: %e, m/H: %e \n", weight, a, pba->a_c, H, pba->m_scf*pba->H0/H);
     if(pba->scf_evolve_as_fluid_PH == _TRUE_){
         pvecback[pba->index_bg_rho_scf] = weight * pvecback[pba->index_bg_rho_scf] + (1 - weight) * rho_aux;
         pvecback[pba->index_bg_p_scf] = pvecback[pba->index_bg_w_scf] * pvecback[pba->index_bg_rho_scf];
@@ -652,7 +657,7 @@ int background_functions(
     // PH - again have included contributions from actual field here - is this self consistent?
     H = sqrt((rho_tot + (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.)-pba->K/a/a);
     Hprime = - (3./2.) * ((rho_tot + (phi_prime*phi_prime/(2*a*a) + V_scf(pba,phi))/3.) + (p_tot + (phi_prime*phi_prime/(2*a*a) - V_scf(pba,phi))/3.)) * a + pba->K/a;
-
+    // printf("BG after switch H: %e \n", H);
     if(pba->kg_fld_switch == _FALSE_){
       pba->kg_fld_switch = _TRUE_;
       //if we just switched from KG to fluid, we need to correctly initialize the density.
@@ -668,7 +673,9 @@ int background_functions(
       phi_prime_s = factor*a*pba->m_scf*pba->H0*(3*pow(H,2)*phi - 2*Hprime*phi/a + 4*H*phi_prime/a);
       rho_aux = (0.5*(pow(pba->m_scf*pba->H0,2)*(pow(phi_c,2) + pow(phi_s,2)) +
           (pow(phi_prime_c,2) + pow(phi_prime_s,2))/(2*pow(a,2)) + pba->m_scf*pba->H0*(-phi_c*phi_prime_s + phi_s*phi_prime_c)/a))/3.0;
-      weight = 0.5 - 0.5 * tanh(1.5*(pba->m_scf*pba->H0/H - MAX(pba->threshold_scf_fluid_m_over_H - 2, 2)));
+      // weight = 0.5 - 0.5 * tanh(1.5*(pba->m_scf*pba->H0/H - MAX(pba->threshold_scf_fluid_m_over_H - 2, 2)));
+      weight_midpoint = pba->threshold_scf_fluid_m_over_H - (atanh(0.98)/10);
+      weight = 0.5 - 0.5 * tanh(10*(pba->m_scf*pba->H0/H - weight_midpoint));
       if(pba->scf_evolve_as_fluid_PH == _TRUE_){
         pvecback_B[pba->index_bi_rho_scf] = weight * pvecback_B[pba->index_bi_rho_scf] + (1 - weight) * rho_aux;
       }

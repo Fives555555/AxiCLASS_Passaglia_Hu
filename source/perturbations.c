@@ -5546,10 +5546,16 @@ void PH_values(
   double hL_prime = ppw->pvecmetric[ppw->index_mt_h_prime];
   double a = ppw->pvecback[pba->index_bg_a];
 
-  H = sqrt((ppw->pvecback[pba->index_bg_rho_tot] + ppw->pvecback[pba->index_bg_rho_scf])-pba->K/a/a);
+  // H = sqrt((ppw->pvecback[pba->index_bg_rho_tot] + ppw->pvecback[pba->index_bg_rho_scf])-pba->K/a/a);
+  H = sqrt((ppw->pvecback[pba->index_bg_rho_tot])-pba->K/a/a); 
+// take out the rho_scf and p_scf in H and Hprime and print again for background and perts
 
-  Hprime = - (3./2.) * ((ppw->pvecback[pba->index_bg_rho_tot] + ppw->pvecback[pba->index_bg_rho_scf]) + 
-          (ppw->pvecback[pba->index_bg_p_tot] + ppw->pvecback[pba->index_bg_p_scf])) * a + pba->K/a;
+  // Hprime = - (3./2.) * ((ppw->pvecback[pba->index_bg_rho_tot] + ppw->pvecback[pba->index_bg_rho_scf]) + 
+  //         (ppw->pvecback[pba->index_bg_p_tot] + ppw->pvecback[pba->index_bg_p_scf])) * a + pba->K/a;
+  Hprime = - (3./2.) * ((ppw->pvecback[pba->index_bg_rho_tot]) + 
+          (ppw->pvecback[pba->index_bg_p_tot])) * a + pba->K/a;
+
+
 
   factor_PH = 6*pow(H,2)/(9*pow(H,4) - 4*(4*pow(H,2)*pow(mass,2) + pow(Hprime,2)/pow(a,2)));
 
@@ -5607,7 +5613,7 @@ void PH_values(
   // test
   ca2_scf = 1.5*pow((H/mass),2) - (Hprime)/(a*pow(mass, 2)*(1 + 1.5*pow((H/mass),2)));
 
-  theta_scf = (1./3.)*(k*k*mass/(2*a)) * (delta_phi_c*(phi_s + phi_prime_c/(a*mass)) + delta_phi_s*(-phi_c + phi_prime_s/(a*mass))) 
+  theta_scf = (1./3.)*(pow(k,2)*mass/(2*a)) * (delta_phi_c*(phi_s + phi_prime_c/(a*mass)) + delta_phi_s*(-phi_c + phi_prime_s/(a*mass))) 
             / (ppw->pvecback[pba->index_bg_rho_scf] + ppw->pvecback[pba->index_bg_p_scf]); //the phi primes need to also be divided by mass (done)
 
   // printf("phi_c: %e, phi_s: %e, phiprime_c: %e, phiprime_s: %e\n", phi_c, phi_s, phi_prime_c, phi_prime_s);
@@ -7278,6 +7284,8 @@ int perturbations_total_stress_energy(
                                       ) {
   /** Summary: */
 
+  
+
   /** - define local variables */
 
   double a,a2,a_prime_over_a,k2;
@@ -7323,6 +7331,20 @@ int perturbations_total_stress_energy(
   double delta_scf_aux = 0.;
   double theta_scf_aux = 0.;
   double weight = 0.;
+  double weight_midpoint = 0.;
+  FILE *wfile;
+  FILE *afile;
+  FILE *kfile;
+  FILE *rfile;
+
+
+  // Check if called
+  // printf("PERTURBATIONS_TOTAL_STRESS_ENERGY CALLED, scale factor: %e, k: %e, KG flag: %d \n", ppw->pvecback[pba->index_bg_a], k, ppt->scf_kg_eq[index_md][index_k]);
+
+
+
+
+
   /** - wavenumber and scale factor related quantities */
 
   a = ppw->pvecback[pba->index_bg_a];
@@ -7592,13 +7614,14 @@ int perturbations_total_stress_energy(
 
                 // printf("Aux delta: %e \n", delta_scf_aux);
 
-                weight = 0.5 - 0.5 * tanh(10*(pba->m_scf*pba->H0/PH_variables[15] - MAX(pba->threshold_scf_fluid_m_over_H - 2, 2)));
-                // weight = 0.5 - 0.5 * tanh(1.5*(pba->m_scf*pba->H0/PH_variables[15] - 0.8 * pba->threshold_scf_fluid_m_over_H));
+                // weight = 0.5 - 0.5 * tanh(10*(pba->m_scf*pba->H0/PH_variables[15] - MAX(pba->threshold_scf_fluid_m_over_H - 2, 2)));
+                weight_midpoint = pba->threshold_scf_fluid_m_over_H - (atanh(0.98)/10);
+                weight = 0.5 - 0.5 * tanh(10*(pba->m_scf*pba->H0/PH_variables[15] - weight_midpoint));
 
               
                 y[ppw->pv->index_pt_delta_scf] = weight * y[ppw->pv->index_pt_delta_scf] + (1 - weight) * delta_scf_aux;
                 // printf("Weighted delta: %e \n", y[ppw->pv->index_pt_delta_scf]);
-                // printf("Weight: %e, scale factor: %e \n", weight, a);
+                // printf("Delta Weight: %e, scale factor: %e, k: %e, switch scale factor: %e, Pert H: %e, m/H: %e \n", weight, a, k, pba->a_c,  PH_variables[15], pba->m_scf*pba->H0/PH_variables[15]);
               }
               // PH approx. ends
 
@@ -7618,16 +7641,16 @@ int perturbations_total_stress_energy(
               // printf("old cs2 %e new cs2 %e \n", k2/(4*pba->m_scf*pba->H0*pba->m_scf*pba->H0*a2)/(1+k2/(4*pba->m_scf*pba->H0*pba->m_scf*pba->H0*a2)), cs2_scf);
               
               // printf("Before switch cs2 %e, ca2 %e, w %e\n", cs2_scf, ca2_scf, ppw->pvecback[pba->index_bg_w_scf]);
-              // PH approx starts
-              if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-              {
-                PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables, delta_p_scf, delta_rho_scf);
-                cs2_scf = PH_variables[2];
-                ca2_scf = PH_variables[3];
-                // printf("After switch cs2 %e ca2 %e, w %e\n", cs2_scf, ca2_scf, ppw->pvecback[pba->index_bg_w_scf]);
-                // exit(0);
-              }
-              // PH approx ends
+              // // PH approx starts
+              // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+              // {
+              //   PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables, delta_p_scf, delta_rho_scf);
+              //   cs2_scf = PH_variables[2];
+              //   ca2_scf = PH_variables[3];
+              //   // printf("After switch cs2 %e ca2 %e, w %e\n", cs2_scf, ca2_scf, ppw->pvecback[pba->index_bg_w_scf]);
+              //   // exit(0);
+              // }
+              // // PH approx ends
 
             }
             else if(pba->scf_potential == axion){
@@ -7637,22 +7660,8 @@ int perturbations_total_stress_energy(
               ca2_scf = (pow(a,3)*pow(a_over_ac,3*pba->n_axion/(1+pba->n_axion))*(-1+pba->n_axion)-pow(a_over_ac,3/(1+pba->n_axion))*pow(pba->a_c,3)*(1+3*pba->n_axion))
                     /(pow(a,3)*pow(a_over_ac,3*pba->n_axion/(1+pba->n_axion))+pow(a_over_ac,3/(1+pba->n_axion))*pow(pba->a_c,3))/(1+pba->n_axion);
               
-              // printf("Before switch cs2 %e ca2 %e, w %e\n", cs2_scf, ca2_scf, ppw->pvecback[pba->index_bg_w_scf]);
-              // PH approx starts
-              if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-              {
-                PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables, delta_p_scf, delta_rho_scf);
-                cs2_scf = PH_variables[2];
-                ca2_scf = PH_variables[3];
-                // printf("After switch cs2 %e ca2 %e, w %e\n", cs2_scf, ca2_scf, ppw->pvecback[pba->index_bg_w_scf]);
-                // exit(0);
-              }
-              // PH approx ends
-
-
             }
 
-            // NEED TO ADD PH EFA HERE?
 
             if(ppt->use_delta_scf_over_1plusw) delta_rho_scf = (1+ppw->pvecback[pba->index_bg_w_scf])*ppw->pvecback[pba->index_bg_rho_scf]*y[ppw->pv->index_pt_delta_scf];
             else delta_rho_scf = ppw->pvecback[pba->index_bg_rho_scf]*y[ppw->pv->index_pt_delta_scf]; //identical to fld above
@@ -7667,7 +7676,7 @@ int perturbations_total_stress_energy(
           // printf("Fluid equations, delta_rho: %e, scale_factor: %e, theta: %e, Flag: %d, k: %e \n", delta_rho_scf, a, y[ppw->pv->index_pt_theta_scf], ppt->scf_kg_eq[index_md][index_k], k); //LG 16/09/24
           // exit(0); //EXIT LG
         }
-      } // SHOULD PROBABLY ALSO PUT THIS IN PH EFA - HOW DOES THIS CHANGE FOR NEWTONIAN GAUGE? ONLY USING SYNCHRONOUS CURRENTLY
+      } 
     else{ //if newtonian gauge, equation for psi */
         if (ppt->scf_kg_eq[index_md][index_k] == 1){ //evolving via KG
           psi = y[ppw->pv->index_pt_phi] - 4.5 * (a2/k/k) * ppw->rho_plus_p_shear;
@@ -7683,7 +7692,6 @@ int perturbations_total_stress_energy(
              // printf("delta_rho_scf KG %e rho+p shear %e delta_p_scf %e phi %e psi %e phi_scf' %e V' %e\n", delta_rho_scf,delta_p_scf,ppw->rho_plus_p_shear,y[ppw->pv->index_pt_phi],psi,ppw->pvecback[pba->index_bg_phi_prime_scf],ppw->pvecback[pba->index_bg_dV_scf]);
         }
         else{ //evolving as fluid
-        // CHANGES TO SOUND SPEED HERE?? NEWTONIAN GAUGE TRANSFORMATION - FOR BOTH POTENTIALS
               if(pba->scf_potential == axionquad){
                 cs2_scf = k2/(4*pba->m_scf*pba->H0*pba->m_scf*pba->H0*a2)/(1+k2/(4*pba->m_scf*pba->H0*pba->m_scf*pba->H0*a2));
                 // cs2_scf = (a*pba->m_scf*pba->H0)/k*(pow(1+pow(k/a/(pba->m_scf*pba->H0),2),0.5)-1)+5./4.*pow(ppw->pvecback[pba->index_bg_H]/(pba->m_scf*pba->H0),2);
@@ -7691,32 +7699,12 @@ int perturbations_total_stress_energy(
                 ca2_scf = -4*pow(a_over_ac,3/2)*pow(pba->a_c,3)
                       /(pow(a,3)*pow(a_over_ac,3/2)+pow(a_over_ac,3/2)*pow(pba->a_c,3))/2;
                 // printf("a %e a_c %e ca2_scf %e\n", a,pba->a_c,ca2_scf);
-                // // PH approx starts
-                // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-                // {
-                //   // Alternate using the function
-                //   PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-                //   cs2_scf = PH_variables[2];
-                //   ca2_scf = PH_variables[3];
-
-                // }
-                // // PH approx ends
                 }
               else if(pba->scf_potential == axion){
                 cs2_scf = (2*a*a*(pba->n_axion-1)*pow(pba->omega_axion*pow(a,-3*(pba->n_axion-1)/(pba->n_axion+1)),2)+k*k)/(2*a*a*(pba->n_axion+1)*pow(pba->omega_axion*pow(a,-3*(pba->n_axion-1)/(pba->n_axion+1)),2)+k*k);
                 a_over_ac = a/pba->a_c;
                 ca2_scf = (pow(a,3)*pow(a_over_ac,3*pba->n_axion/(1+pba->n_axion))*(-1+pba->n_axion)-pow(a_over_ac,3/(1+pba->n_axion))*pow(pba->a_c,3)*(1+3*pba->n_axion))
                       /(pow(a,3)*pow(a_over_ac,3*pba->n_axion/(1+pba->n_axion))+pow(a_over_ac,3/(1+pba->n_axion))*pow(pba->a_c,3))/(1+pba->n_axion);
-                // // PH approx starts
-                // if(pba->scf_evolve_as_fluid_PH == _TRUE_)
-                // {
-                //   // Alternate using the function
-                //   PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-                //   cs2_scf = PH_variables[2];
-                //   ca2_scf = PH_variables[3];
-
-                // }
-                // // PH approx ends
               }
               // not sure here
               if(ppt->use_delta_scf_over_1plusw) delta_rho_scf = (1+ppw->pvecback[pba->index_bg_w_scf])*ppw->pvecback[pba->index_bg_rho_scf]*y[ppw->pv->index_pt_delta_scf];
@@ -7763,21 +7751,50 @@ int perturbations_total_stress_energy(
           else{
             y[ppw->pv->index_pt_theta_scf] = (1./3.*k*k/a2*ppw->pvecback[pba->index_bg_phi_prime_scf]*y[ppw->pv->index_pt_phi_scf]) / (ppw->pvecback[pba->index_bg_rho_scf]+ppw->pvecback[pba->index_bg_p_scf]);
 
-            // printf("Field theta: %e \n", y[ppw->pv->index_pt_theta_scf]);
+            
 
             if(pba->scf_evolve_as_fluid_PH == _TRUE_){
               // PH approx. starts
+
+              // printf("Field theta: %e \n", y[ppw->pv->index_pt_theta_scf]);
+
               PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables, delta_p_scf, delta_rho_scf);
               theta_scf_aux = PH_variables[4];
 
               // printf("Aux theta: %e \n", theta_scf_aux);
 
-              weight = 0.5 - 0.5 * tanh(10*(pba->m_scf*pba->H0/PH_variables[15] - MAX(pba->threshold_scf_fluid_m_over_H - 2, 2)));
-              // weight = 0.5 - 0.5 * tanh(1.5*(pba->m_scf*pba->H0/PH_variables[15] - 0.8 * pba->threshold_scf_fluid_m_over_H));
 
-            
+              // weight = 0.5 - 0.5 * tanh(10*(pba->m_scf*pba->H0/PH_variables[15] - MAX(pba->threshold_scf_fluid_m_over_H - 2, 2)));
+
+              weight_midpoint = pba->threshold_scf_fluid_m_over_H - (atanh(0.98)/10);
+              weight = 0.5 - 0.5 * tanh(10*(pba->m_scf*pba->H0/PH_variables[15] - weight_midpoint));
+
+              // printf("Theta Weight: %e, scale factor: %e, k: %e, switch scale factor: %e, Pert H: %e, m/H: %e \n", weight, a, k, pba->a_c, PH_variables[15], pba->m_scf*pba->H0/PH_variables[15]);
+
+
+
               y[ppw->pv->index_pt_theta_scf] = weight * y[ppw->pv->index_pt_theta_scf] + (1 - weight) * theta_scf_aux;
-              // printf("Weighted theta: %e \n", y[ppw->pv->index_pt_theta_scf]);
+              // if(k < 1.09e-3 && k > 8.0e-4){
+              // printf("Aux theta: %e, Weight: %e, Weighted theta: %e, Scale factor: %e, k: %e, KG Flag: %d, Ratio: %e \n", theta_scf_aux, weight, y[ppw->pv->index_pt_theta_scf], a, k, ppt->scf_kg_eq[index_md][index_k], pba->m_scf*pba->H0/PH_variables[15]);
+              // }
+
+
+              // wfile = fopen("28_weight_file.txt", "a");
+              // fprintf(wfile, "\n %e", weight);
+              // fclose(wfile);
+
+              // afile = fopen("28_a_file.txt", "a");
+              // fprintf(afile, "\n %e", a);
+              // fclose(afile);
+
+              // kfile = fopen("28_k_file.txt", "a");
+              // fprintf(kfile, "\n %e", k);
+              // fclose(kfile);
+
+              // rfile = fopen("28_ratio_file.txt", "a");
+              // fprintf(rfile, "\n %e", pba->m_scf*pba->H0/PH_variables[15]);
+              // fclose(rfile);
+
             }
             // PH approx. ends //LG
 
@@ -9996,7 +10013,7 @@ int perturbations_derivs(double tau,
             ppt->scf_kg_eq[index_md][index_k] = 0; //We switch to fluid equations
             // printf("here fld a %e\n", pvecback[pba->index_bg_a]);
             // pba->scf_fluid_eq = 1;
-            // printf("Derivs switch occurred, delta_rho: %e, scale_factor: %e, theta: %e, Flag: %d \n", delta_rho_scf, a, y[ppw->pv->index_pt_theta_scf], ppt->scf_kg_eq[index_md][index_k]); //LG 16/09/24
+            // printf("Derivs switch occurred, delta_rho: %e, scale_factor: %e, theta: %e, Flag: %d, k: %e \n", delta_rho_scf, a, y[ppw->pv->index_pt_theta_scf], ppt->scf_kg_eq[index_md][index_k], k); //LG 16/09/24
             // exit(0);
           }
           else {
@@ -10037,6 +10054,12 @@ int perturbations_derivs(double tau,
     // fprintf(stdout,"The value of 3*pvecback[pba->index_bg_H] is %f \n", 3*pvecback[pba->index_bg_H]);
     // fprintf(stdout,"The value of m is %f Mpc^-2 \n", pba->m_scf);
     // }
+
+    // if(k < 1.1e-3 && k > 1.0e-3){
+    // printf("DERIVS FLAG %d, scale factor: %e, k: %e \n", ppt->scf_kg_eq[index_md][index_k], ppw->pvecback[pba->index_bg_a], k); //LG
+    // }
+
+
   }
   // if(pba->scf_has_perturbations == _FALSE_ ){
   //   if (ppt->perturbations_verbose>10)
