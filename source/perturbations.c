@@ -7596,17 +7596,8 @@ int perturbations_total_stress_energy(
               // PH approx starts
               if(pba->scf_evolve_as_fluid_PH == _TRUE_)
               {
-                // LG CHANGE IN FUNCTION TOO
-                // delta_rho_scf =  1./3.*
-                // (1./a2*ppw->pvecback[pba->index_bg_phi_prime_scf]*y[ppw->pv->index_pt_phi_prime_scf]
-                // + ppw->pvecback[pba->index_bg_dV_scf]*y[ppw->pv->index_pt_phi_scf]);
-                // delta_p_scf = 1./3.*
-                // (1./a2*ppw->pvecback[pba->index_bg_phi_prime_scf]*y[ppw->pv->index_pt_phi_prime_scf]
-                // - ppw->pvecback[pba->index_bg_dV_scf]*y[ppw->pv->index_pt_phi_scf]);
 
                 PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-                // printf("a: %e k: %e cs2_scf: %e PH cs2: %e\n", a,k,cs2_scf, PH_variables[2]);
-                
 
                 // // LG REMOVE INITIALISED VARIABLES WHEN DONE 
                 // afile = fopen("26_cs2_a_file.txt", "a");
@@ -9843,20 +9834,20 @@ int perturbations_derivs(double tau,
   double f_dr, fprime_dr;
 
 
-  // PH and local variables
+  // PH and local variables // LG
   double PH_variables[16]; // 0=delta_rho, 1=delta_p, 2=cs2_scf, 3=ca2_scf, 4=theta_scf, 5=w_scf_f 
-  double H = 0.;
-  double Hprime = 0.;
-  double factor_PH = 0.;
-  double phi_c = 0.;
-  double phi_s = 0.;
-  double phi_prime_c = 0.;
-  double phi_prime_s = 0.;
-  double delta_phi_c = 0.;
-  double delta_phi_s = 0.;
-  double delta_phi_prime_c = 0.;
-  double delta_phi_prime_s = 0.;
-  double hL_prime = 0.;
+  // double H = 0.;
+  // double Hprime = 0.;
+  // double factor_PH = 0.;
+  // double phi_c = 0.;
+  // double phi_s = 0.;
+  // double phi_prime_c = 0.;
+  // double phi_prime_s = 0.;
+  // double delta_phi_c = 0.;
+  // double delta_phi_s = 0.;
+  // double delta_phi_prime_c = 0.;
+  // double delta_phi_prime_s = 0.;
+  // double hL_prime = 0.;
 
 
 
@@ -10784,8 +10775,8 @@ int perturbations_derivs(double tau,
             // ca2 = -4*pow(a_over_ac,3/2)*pow(pba->a_c,3)
             //       /(pow(a,3)*pow(a_over_ac,3/2)+pow(a_over_ac,3/2)*pow(pba->a_c,3))/2;
 
-            // PH approx starts
-            if(pba->scf_evolve_as_fluid_PH == _TRUE_)
+            // LG PH approx starts
+            if(ppt->scf_kg_eq[index_md][index_k] == 0 && pba->scf_evolve_as_fluid_PH == _TRUE_)
               {
                 PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
                 cs2 = PH_variables[2];
@@ -10806,7 +10797,7 @@ int perturbations_derivs(double tau,
             //VP" security when (1+index_bg_w_scf != 0.0) the field is frozen, theta is 0.
           }
           else{
-            // NEED CHANGES HERE??? - theta given by (rho + P)theta = ...
+            // LG - theta given by (rho + P)theta = ...
             theta_scf=y[pv->index_pt_theta_scf];
           }
           dy[pv->index_pt_delta_scf] = -(theta_scf+metric_continuity)-3.*a_prime_over_a*(cs2-ca2)*(y[pv->index_pt_delta_scf]+3.*a_prime_over_a*theta_scf/k2);
