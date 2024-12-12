@@ -5611,6 +5611,7 @@ void PH_values(       struct background * pba,
   PH_variables[13] = delta_phi_prime_c;
   PH_variables[14] = delta_phi_prime_s;
   PH_variables[15] = H;
+  PH_variables[16] = Hprime;
 
   }
   // PH approx. function ends
@@ -5665,7 +5666,7 @@ int perturbations_initial_conditions(struct precision * ppr,
   /** --> For scalars */
 
   // PH and local variables
-  double PH_variables[16]; // 0=delta_rho, 1=delta_p, 2=cs2_scf, 3=ca2_scf, 4=theta_scf, 5=w_scf_f
+  double PH_variables[17]; // 0=delta_rho, 1=delta_p, 2=cs2_scf, 3=ca2_scf, 4=theta_scf, 5=w_scf_f
   double H = 0.;
   double Hprime = 0.;
   double factor_PH = 0.;
@@ -5979,9 +5980,11 @@ int perturbations_initial_conditions(struct precision * ppr,
 
         // printf("m_scf is %e pba->w_scf %e ca2 %e cs2 %e\n", pba->m_scf,pba->w_scf,ca2,pba->cs2_scf);
 
-        if(pba->scf_evolve_like_axionCAMB == _FALSE_) { //CHANGE HERE?
+        if(pba->scf_evolve_like_axionCAMB == _FALSE_) { //CHANGE HERE? //LG
           ppw->pv->y[ppw->pv->index_pt_phi_scf] = 0.;//a*a/k/k/ppw->pvecback[pba->index_bg_phi_prime_scf]*k*ktau_three/4.*1./(4.-6.*(1./3.)+3.*1.) * (ppw->pvecback[pba->index_bg_rho_scf] + ppw->pvecback[pba->index_bg_p_scf])* ppr->curvature_ini * s2_squared;
           ppw->pv->y[ppw->pv->index_pt_phi_prime_scf] = 0.;//a*a/ppw->pvecback[pba->index_bg_phi_prime_scf]*( - ktau_two/4.*(1.+1./3.)*(4.-3.*1.)/(4.-6.*(1/3.)+3.*1.)*ppw->pvecback[pba->index_bg_rho_scf] - ppw->pvecback[pba->index_bg_dV_scf]*ppw->pv->y[ppw->pv->index_pt_phi_scf])* ppr->curvature_ini * s2_squared;
+
+          // LG ZERO
 
         }
         //CO 22.01.18 If we intend to use fluid eqs, we need delta and theta. Technically only theta because here we are in the synchronous gauge, but both for ease. Always need phi and phi prime.
@@ -6261,7 +6264,7 @@ int perturbations_initial_conditions(struct precision * ppr,
       /* scalar field: check */
       if (pba->has_scf == _TRUE_&& pba->scf_has_perturbations == _TRUE_) {
         if (pba->scf_evolve_like_axionCAMB == _FALSE_){
-        alpha_prime = 0.0;
+        alpha_prime = 0.0; // LG ZERO???
           /* - 2. * a_prime_over_a * alpha + eta
              - 4.5 * (a2/k2) * ppw->rho_plus_p_shear; */
           ppw->pv->y[ppw->pv->index_pt_phi_scf] += alpha*ppw->pvecback[pba->index_bg_phi_prime_scf];
@@ -6271,7 +6274,7 @@ int perturbations_initial_conditions(struct precision * ppr,
            +ppw->pvecback[pba->index_bg_phi_prime_scf]*alpha_prime);
          }
          if (pba->scf_evolve_as_fluid == _TRUE_){
-            // CHANGES HERE?
+            // CHANGES HERE? LG
             if(ppt->use_delta_scf_over_1plusw==_TRUE_)ppw->pv->y[ppw->pv->index_pt_delta_scf] -= 3.*a_prime_over_a*alpha;
             else ppw->pv->y[ppw->pv->index_pt_delta_scf] -= 3.*(1+ppw->pvecback[pba->index_bg_w_scf])*a_prime_over_a*alpha;
             if(ppt->use_big_theta_scf == _TRUE_) ppw->pv->y[ppw->pv->index_pt_big_theta_scf] += (1+ppw->pvecback[pba->index_bg_w_scf])*k*k*alpha;
@@ -7282,7 +7285,7 @@ int perturbations_total_stress_energy(
   double Gamma_fld, S, S_prime, theta_t, theta_t_prime, rho_plus_p_theta_fld_prime, rho_plus_p_theta_scf,cs2_scf,ca2_scf,a_over_ac;
   double delta_p_b_over_rho_b;
   // PH and local variables //LG
-  double PH_variables[16]; // 0=delta_rho, 1=delta_p, 2=cs2_scf, 3=ca2_scf, 4=theta_scf, 5=w_scf_f 
+  double PH_variables[17]; // 0=delta_rho, 1=delta_p, 2=cs2_scf, 3=ca2_scf, 4=theta_scf, 5=w_scf_f 
   double delta_scf_aux = 0.;
   double theta_scf_aux = 0.;
   double weight = 0.;
@@ -7561,7 +7564,7 @@ int perturbations_total_stress_energy(
               y[ppw->pv->index_pt_delta_scf] = delta_rho_scf/ppw->pvecback[pba->index_bg_rho_scf];
               // printf("Switch a: %e \n", pba->a_c); // LG
 
-              printf("Field delta: %e \n", y[ppw->pv->index_pt_delta_scf]);
+              // printf("Field delta: %e \n", y[ppw->pv->index_pt_delta_scf]); //LG
               if(pba->scf_evolve_as_fluid_PH == _TRUE_){
                 // PH approx. starts
                 PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
@@ -7569,7 +7572,7 @@ int perturbations_total_stress_energy(
 
 
 
-                printf("Aux delta: %e \n", delta_scf_aux);
+                // printf("Aux delta: %e \n", delta_scf_aux); //LG
 
 
 
@@ -7581,8 +7584,8 @@ int perturbations_total_stress_energy(
                 y[ppw->pv->index_pt_delta_scf] = weight * y[ppw->pv->index_pt_delta_scf] + (1 - weight) * delta_scf_aux;
 
 
-                printf("Weighted delta: %e \n", y[ppw->pv->index_pt_delta_scf]);
-                printf("Weight value: %e \n", weight);
+                // printf("Weighted delta: %e \n", y[ppw->pv->index_pt_delta_scf]);
+                // printf("Weight value: %e \n", weight); //LG
 
 
                 // printf("Delta Weight: %e, scale factor: %e, k: %e, switch scale factor: %e, Pert H: %e, m/H: %e \n", weight, a, k, pba->a_c,  PH_variables[15], pba->m_scf*pba->H0/PH_variables[15]);
@@ -8708,7 +8711,7 @@ int perturbations_sources(
 
       // CHANGE TO NEW EFA??
 
-
+      // LG ZERO???
       _set_source_(ppt->index_tp_delta_scf) = y[ppw->pv->index_pt_delta_scf];
       _set_source_(ppt->index_tp_delta_phi_scf) = 0;
       _set_source_(ppt->index_tp_delta_phi_over_phi_scf) = 0;
@@ -9855,7 +9858,7 @@ int perturbations_derivs(double tau,
 
 
   // PH and local variables // LG
-  double PH_variables[16]; // 0=delta_rho, 1=delta_p, 2=cs2_scf, 3=ca2_scf, 4=theta_scf, 5=w_scf_f 
+  double PH_variables[17]; // 0=delta_rho, 1=delta_p, 2=cs2_scf, 3=ca2_scf, 4=theta_scf, 5=w_scf_f 
   // double H = 0.;
   // double Hprime = 0.;
   // double factor_PH = 0.;
@@ -10780,75 +10783,91 @@ int perturbations_derivs(double tau,
       if(pba->scf_evolve_as_fluid == _TRUE_) {
 
         if(ppt->scf_kg_eq[index_md][index_k] == 0)
+        // if(a <= 2.1e-03)
         {
-          if(k == 1.0)
+          if(k == 1.0)//10.0)//0.01)//0.0001)//1.0)
           {
 
             PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
 
 
 
-            // TriggerCLASS comparison check
-            // a = ppw->pvecback[pba->index_bg_a];
-            // a_prime_over_a = ppw->pvecback[pba->index_bg_H] * a;
+            // // TriggerCLASS comparison check
+            // // a = ppw->pvecback[pba->index_bg_a];
+            // // a_prime_over_a = ppw->pvecback[pba->index_bg_H] * a;
 
-            a2 = a * a;
-            k2 = k * k;
+            // a2 = a * a;
+            // k2 = k * k;
 
-            double phi_fluid = ppw->pvecback[pba->index_bg_phi_scf];
-            double phi_prime_fluid = ppw->pvecback[pba->index_bg_phi_prime_scf];
+            // double phi_fluid = ppw->pvecback[pba->index_bg_phi_scf];
+            // double phi_prime_fluid = ppw->pvecback[pba->index_bg_phi_prime_scf];
 
-            double hL_prime = ppw->pvecmetric[ppw->index_mt_h_prime];
+            // double hL_prime = ppw->pvecmetric[ppw->index_mt_h_prime];
 
-            double delta_phi_fluid = y[ppw->pv->index_pt_phi_scf];
-            double delta_phi_prime_fluid = y[ppw->pv->index_pt_phi_prime_scf];
+            // double delta_phi_fluid = y[ppw->pv->index_pt_phi_scf];
+            // double delta_phi_prime_fluid = y[ppw->pv->index_pt_phi_prime_scf];
 
-            double H = ppw->pvecback[pba->index_bg_H];
-            double H_prime = ppw->pvecback[pba->index_bg_H_prime];
-            double m = pba->m_scf*pba->H0;
-
-
-            double fac = 6.0 * pow(H, 2) / (9.0 * pow(H, 4) - 4 * (4 * pow(H, 2) * pow(m, 2) + pow(H_prime, 2) / pow(a, 2)));
-
-            double phi_c_p = fac * (4.0 * H * m * phi_fluid + 3.0 * pow(H, 2) * phi_prime_fluid / a / m + 2.0 * H_prime * phi_prime_fluid / pow(a, 2) / m);
-
-            double phi_s_p = fac * (3.0 * pow(H, 2) * phi_fluid - 2.0 * H_prime / a * phi_fluid + 4.0 * H * phi_prime_fluid / a);
-
-            double phi_c = phi_fluid;
-
-            double phi_s = phi_prime_fluid / a / m - phi_c_p;
-
-            double delta_phi_c_p = H / (-8.0 * pow(H * k, 2) * m + a * a * m * (9 * pow(H, 4) - 4.0 * (4.0 * pow(H * m, 2) + pow(H_prime / a, 2)))) * (2.0 * k * k * (3.0 * H * H * delta_phi_fluid + 2.0 * H_prime / a * delta_phi_fluid - 4.0 * H * delta_phi_prime_fluid / a) + a * a * m * (2.0 * hL_prime / a * H_prime / a * (phi_c_p + phi_s) + 3.0 * H * H * m * (hL_prime / a / m * (phi_c_p + phi_s) + 8.0 * delta_phi_fluid) + 18.0 * pow(H, 3) * delta_phi_prime_fluid / a / m + 4.0 * H * m * (hL_prime / a * (phi_c - phi_s_p) + 3.0 * H_prime / a / m * delta_phi_prime_fluid / a / m)));
-
-            double delta_phi_s_p = -H / pow(a, 2) / m / (-8.0 * pow(H * k, 2) * m + a * a * m * (9.0 * pow(H, 4) - 4.0 * (4.0 * pow(H * m, 2) + pow(H_prime / a, 2)))) * (-4.0 * H * pow(k, 4) * delta_phi_fluid - 2.0 * pow(a * k, 2) * m * (H * m * (hL_prime / a / m * (phi_c_p + phi_s) + 4.0 * delta_phi_fluid) + 3.0 * pow(H, 2) * delta_phi_prime_fluid / a / m + 2.0 * H_prime / a * delta_phi_prime_fluid / a / m) - pow(a * a * m, 2) * (2.0 * hL_prime / a * H_prime / a * (-phi_c + phi_s_p) + 18.0 * pow(H, 3) * delta_phi_fluid + 4.0 * H * m * (hL_prime / a * (phi_c_p + phi_s) - 3.0 * H_prime / a / m * delta_phi_fluid) + 3.0 * H * H * m * (hL_prime / a / m * phi_c - hL_prime / a / m * phi_s_p + 8.0 * delta_phi_prime_fluid / a / m)));
-
-            double delta_phi_c = delta_phi_fluid;
-
-            double delta_phi_s = delta_phi_prime_fluid / a / m - delta_phi_c_p;
-
-            double delta_rho_trigger = 0.5 * m * m * (phi_s * delta_phi_c_p - phi_c * delta_phi_s_p + delta_phi_c_p * phi_c_p + delta_phi_s_p * phi_s_p + delta_phi_s * (2.0 * phi_s + phi_c_p) + delta_phi_c * (2.0 * phi_c - phi_s_p));
-            delta_rho_trigger = delta_rho_trigger / 3.0; // CLASS convention!
-
-            double rho_plus_p_theta_trigger_fld = k * k * m / (2.0 * a) * (delta_phi_c * (phi_s + phi_c_p) + delta_phi_s * (-phi_c + phi_s_p));
-            rho_plus_p_theta_trigger_fld = rho_plus_p_theta_trigger_fld / 3.0; // CLASS convention!
-
-            double rho_tfa = 0.5 * pow(m, 2) * (phi_c * phi_c + phi_s * phi_s + 0.5 * (phi_c_p * phi_c_p + phi_s_p * phi_s_p) - phi_c * phi_s_p + phi_s * phi_c_p);
-            rho_tfa = rho_tfa / 3.0; // CLASS convention!
-
-            double p_tfa = 0.5 * pow(m, 2) * (phi_c_p * phi_c_p / 2.0 + phi_s_p * phi_s_p / 2.0 - phi_c * phi_s_p + phi_s * phi_c_p);
-            p_tfa = p_tfa / 3.0; // CLASS convention!
+            // double H = ppw->pvecback[pba->index_bg_H];
+            // double H_prime = ppw->pvecback[pba->index_bg_H_prime];
+            // double m = pba->m_scf*pba->H0;
 
 
+            // double fac = 6.0 * pow(H, 2) / (9.0 * pow(H, 4) - 4 * (4 * pow(H, 2) * pow(m, 2) + pow(H_prime, 2) / pow(a, 2)));
+
+            // double phi_c_p = fac * (4.0 * H * m * phi_fluid + 3.0 * pow(H, 2) * phi_prime_fluid / a / m + 2.0 * H_prime * phi_prime_fluid / pow(a, 2) / m);
+
+            // double phi_s_p = fac * (3.0 * pow(H, 2) * phi_fluid - 2.0 * H_prime / a * phi_fluid + 4.0 * H * phi_prime_fluid / a);
+
+            // double phi_c = phi_fluid;
+
+            // double phi_s = phi_prime_fluid / a / m - phi_c_p;
+
+            // double delta_phi_c_p = H / (-8.0 * pow(H * k, 2) * m + a * a * m * (9 * pow(H, 4) - 4.0 * (4.0 * pow(H * m, 2) + pow(H_prime / a, 2)))) * (2.0 * k * k * (3.0 * H * H * delta_phi_fluid + 2.0 * H_prime / a * delta_phi_fluid - 4.0 * H * delta_phi_prime_fluid / a) + a * a * m * (2.0 * hL_prime / a * H_prime / a * (phi_c_p + phi_s) + 3.0 * H * H * m * (hL_prime / a / m * (phi_c_p + phi_s) + 8.0 * delta_phi_fluid) + 18.0 * pow(H, 3) * delta_phi_prime_fluid / a / m + 4.0 * H * m * (hL_prime / a * (phi_c - phi_s_p) + 3.0 * H_prime / a / m * delta_phi_prime_fluid / a / m)));
+
+            // double delta_phi_s_p = -H / pow(a, 2) / m / (-8.0 * pow(H * k, 2) * m + a * a * m * (9.0 * pow(H, 4) - 4.0 * (4.0 * pow(H * m, 2) + pow(H_prime / a, 2)))) * (-4.0 * H * pow(k, 4) * delta_phi_fluid - 2.0 * pow(a * k, 2) * m * (H * m * (hL_prime / a / m * (phi_c_p + phi_s) + 4.0 * delta_phi_fluid) + 3.0 * pow(H, 2) * delta_phi_prime_fluid / a / m + 2.0 * H_prime / a * delta_phi_prime_fluid / a / m) - pow(a * a * m, 2) * (2.0 * hL_prime / a * H_prime / a * (-phi_c + phi_s_p) + 18.0 * pow(H, 3) * delta_phi_fluid + 4.0 * H * m * (hL_prime / a * (phi_c_p + phi_s) - 3.0 * H_prime / a / m * delta_phi_fluid) + 3.0 * H * H * m * (hL_prime / a / m * phi_c - hL_prime / a / m * phi_s_p + 8.0 * delta_phi_prime_fluid / a / m)));
+
+            // double delta_phi_c = delta_phi_fluid;
+
+            // double delta_phi_s = delta_phi_prime_fluid / a / m - delta_phi_c_p;
+
+            // double delta_rho_trigger = 0.5 * m * m * (phi_s * delta_phi_c_p - phi_c * delta_phi_s_p + delta_phi_c_p * phi_c_p + delta_phi_s_p * phi_s_p + delta_phi_s * (2.0 * phi_s + phi_c_p) + delta_phi_c * (2.0 * phi_c - phi_s_p));
+            // delta_rho_trigger = delta_rho_trigger / 3.0; // CLASS convention!
+
+            // double rho_plus_p_theta_trigger_fld = k * k * m / (2.0 * a) * (delta_phi_c * (phi_s + phi_c_p) + delta_phi_s * (-phi_c + phi_s_p));
+            // rho_plus_p_theta_trigger_fld = rho_plus_p_theta_trigger_fld / 3.0; // CLASS convention!
+
+            // double rho_tfa = 0.5 * pow(m, 2) * (phi_c * phi_c + phi_s * phi_s + 0.5 * (phi_c_p * phi_c_p + phi_s_p * phi_s_p) - phi_c * phi_s_p + phi_s * phi_c_p);
+            // rho_tfa = rho_tfa / 3.0; // CLASS convention!
+
+            // double p_tfa = 0.5 * pow(m, 2) * (phi_c_p * phi_c_p / 2.0 + phi_s_p * phi_s_p / 2.0 - phi_c * phi_s_p + phi_s * phi_c_p);
+            // p_tfa = p_tfa / 3.0; // CLASS convention!
 
 
-            printf("k mode: %e \n", k);
-            printf("Scale factor: %e, Switch scale factor: %e \n", a, pba->a_c);
-            printf("Fluid delta: %e \n", y[ppw->pv->index_pt_delta_scf]); // LG
-            printf("phi: %e, phi_c: %e, phi_s: %e, TR_phi_c: %e, TR_phi_s: %e \n", pvecback[pba->index_bg_phi_scf], PH_variables[7], PH_variables[8], phi_c, phi_s);
-            printf("phi_c_prime: %e, phi_s_prime: %e, TR_phi_c_prime: %e, TR_phi_s_prime: %e \n", PH_variables[9], PH_variables[10], m*a*phi_c_p, m*a*phi_s_p);
-            printf("delta_phi: %e, delta_phi_c: %e, delta_phi_s: %e, TR_del_phi_c: %e, TR_del_phi_s: %e \n",y[pv->index_pt_phi_scf], PH_variables[11], PH_variables[12], delta_phi_c, delta_phi_s);
-            printf("delta_phi_c_prime: %e, delta_phi_s_prime: %e, TR_del_phi_c_prime: %e, TR_del_phi_s_prime: %e \n", PH_variables[13], PH_variables[14], m*a*delta_phi_c_p, m*a*delta_phi_s_p);
-            exit(0); // LG
+
+
+            // printf("k mode: %e \n", k);
+            // printf("Scale factor: %e, Switch scale factor: %e \n", a, pba->a_c);
+            // printf("Fluid delta: %e \n", y[ppw->pv->index_pt_delta_scf]); // LG
+            // printf("phi: %e, phi_c: %e, phi_s: %e, TR_phi_c: %e, TR_phi_s: %e \n", pvecback[pba->index_bg_phi_scf], PH_variables[7], PH_variables[8], phi_c, phi_s);
+            // printf("phi_c_prime: %e, phi_s_prime: %e, TR_phi_c_prime: %e, TR_phi_s_prime: %e \n", PH_variables[9], PH_variables[10], m*a*phi_c_p, m*a*phi_s_p);
+            // printf("delta_phi: %e, delta_phi_c: %e, delta_phi_s: %e, TR_del_phi_c: %e, TR_del_phi_s: %e \n",y[pv->index_pt_phi_scf], PH_variables[11], PH_variables[12], delta_phi_c, delta_phi_s);
+            // printf("delta_phi_c_prime: %e, delta_phi_s_prime: %e, TR_del_phi_c_prime: %e, TR_del_phi_s_prime: %e \n", PH_variables[13], PH_variables[14], m*a*delta_phi_c_p, m*a*delta_phi_s_p);
+            // exit(0); // LG
+
+
+
+
+            // printf("k mode: %e, mass: %e, hLprime: %e \n", k, pba->m_scf*pba->H0, ppw->pvecmetric[ppw->index_mt_h_prime]);
+            // printf("m_ax: %e, H0: %e \n", pba->m_scf, pba->H0);
+            // printf("Scale factor: %e, Switch scale factor: %e \n", a, pba->a_c);
+            // printf("H: %e, Hprime: %e \n", PH_variables[15], PH_variables[16]);
+            // printf("Fluid delta: %e, Aux delta: %e \n", y[ppw->pv->index_pt_delta_scf], PH_variables[6]); 
+            // printf("phi: %e, phi_c: %e, phi_s: %e \n", pvecback[pba->index_bg_phi_scf], PH_variables[7], PH_variables[8]);
+            // printf("phi_prime: %e, phi_c_prime: %e, phi_s_prime: %e \n",pvecback[pba->index_bg_phi_prime_scf], PH_variables[9], PH_variables[10]);
+            // printf("delta_phi: %e, delta_phi_c: %e, delta_phi_s: %e \n",y[pv->index_pt_phi_scf], PH_variables[11], PH_variables[12]);
+            // printf("delta_phi_prime: %e, delta_phi_c_prime: %e, delta_phi_s_prime: %e \n",y[ppw->pv->index_pt_phi_prime_scf], PH_variables[13], PH_variables[14]);
+            // exit(0); // LG
+
           }
         }
 
