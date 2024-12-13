@@ -309,6 +309,7 @@ struct perturbations
   int index_tp_delta_dcdm;/**< index value for delta of DCDM */
   int index_tp_delta_fld;  /**< index value for delta of dark energy */
   int index_tp_delta_scf;  /**< index value for delta of scalar field */
+  int index_tp_delta_aux_scf;  /**< index value for aux delta of scalar field */ //LG
   int index_tp_delta_phi_scf;  /**< index value  */
   int index_tp_delta_phi_over_phi_scf;  /**< index value  */
   int index_tp_delta_phi_prime_scf;  /**< index value  */
@@ -522,6 +523,7 @@ struct perturbations_vector
   int index_pt_phi_scf;  /**< scalar field density */
   int index_pt_phi_prime_scf;  /**< scalar field velocity */
   int index_pt_delta_scf; /**< scf density for fluid */
+  int index_pt_delta_aux_scf; /**< scf aux density for fluid */ //LG
   int index_pt_theta_scf; /**< scf velocity */
   int index_pt_big_theta_scf;  /**< dark energy velocity divided by (1+w_fld) in true fluid case */
   int index_pt_phase_shift_A;  /**< index for the variable A of the phase shift a la Baumann */

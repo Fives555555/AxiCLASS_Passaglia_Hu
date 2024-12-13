@@ -478,6 +478,7 @@ int perturbations_output_data(
           class_store_double(dataptr,tk[ppt->index_tp_delta_dcdm],ppt->has_source_delta_dcdm,storeidx);
           class_store_double(dataptr,tk[ppt->index_tp_delta_dr],ppt->has_source_delta_dr,storeidx);
           class_store_double(dataptr,tk[ppt->index_tp_delta_scf],ppt->has_source_delta_scf,storeidx);
+          class_store_double(dataptr,tk[ppt->index_tp_delta_aux_scf],ppt->has_source_delta_scf,storeidx); //LG
           class_store_double(dataptr,tk[ppt->index_tp_delta_phi_scf],ppt->has_scf,storeidx);
           class_store_double(dataptr,tk[ppt->index_tp_delta_phi_over_phi_scf],ppt->has_scf,storeidx);
           class_store_double(dataptr,tk[ppt->index_tp_delta_phi_prime_scf],ppt->has_scf,storeidx);
@@ -1569,6 +1570,7 @@ int perturbations_indices(
       class_define_index(ppt->index_tp_delta_dcdm, ppt->has_source_delta_dcdm,index_type,1);
       class_define_index(ppt->index_tp_delta_fld,  ppt->has_source_delta_fld, index_type,1);
       class_define_index(ppt->index_tp_delta_scf,  ppt->has_source_delta_scf, index_type,1);
+      class_define_index(ppt->index_tp_delta_aux_scf,  ppt->has_source_delta_scf, index_type,1); //LG
       class_define_index(ppt->index_tp_delta_phi_scf,  ppt->has_scf, index_type,1);
       class_define_index(ppt->index_tp_delta_phi_over_phi_scf,  ppt->has_scf, index_type,1);
       class_define_index(ppt->index_tp_delta_phi_prime_scf,  ppt->has_scf, index_type,1);
@@ -4161,6 +4163,7 @@ int perturbations_vector_init(
         }
         if(pba->scf_evolve_as_fluid == _TRUE_){
           class_define_index(ppv->index_pt_delta_scf,pba->has_scf,index_pt,1); /* scf density (velocity zero in synchronous gauge)*/ //COpertchange
+          class_define_index(ppv->index_pt_delta_aux_scf,pba->has_scf,index_pt,1); //LG
           if(ppt->use_big_theta_scf == _TRUE_){
             class_define_index(ppv->index_pt_big_theta_scf,pba->has_scf,index_pt,1); /* fluid velocity */
           }
@@ -4659,6 +4662,9 @@ int perturbations_vector_init(
 
           ppv->y[ppv->index_pt_delta_scf] =
         ppw->pv->y[ppw->pv->index_pt_delta_scf];
+
+          ppv->y[ppv->index_pt_delta_aux_scf] =
+        ppw->pv->y[ppw->pv->index_pt_delta_aux_scf]; //LG
 
         if(ppt->use_big_theta_scf == _TRUE_){
           ppv->y[ppv->index_pt_big_theta_scf] =
@@ -5961,6 +5967,8 @@ int perturbations_initial_conditions(struct precision * ppr,
             }
             else{
               ppw->pv->y[ppw->pv->index_pt_delta_scf] = 0.5*ktau_two*(1.+ppw->pvecback[pba->index_bg_w_scf])*(-4.+3.*cs2_scf)/(32.+6.*cs2_scf+12.*w_scf_f)* ppr->curvature_ini * s2_squared;
+
+              ppw->pv->y[ppw->pv->index_pt_delta_aux_scf] = 0; //LG
 
             }
             if (ppt->use_big_theta_scf == _TRUE_){
@@ -7555,6 +7563,12 @@ int perturbations_total_stress_energy(
             delta_p_scf = 1./3.*
             (1./a2*ppw->pvecback[pba->index_bg_phi_prime_scf]*y[ppw->pv->index_pt_phi_prime_scf]
              - ppw->pvecback[pba->index_bg_dV_scf]*y[ppw->pv->index_pt_phi_scf]);
+            //  //LG
+            // if(a <= 2.1e-03){
+            //     PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
+            //     y[ppw->pv->index_pt_delta_aux_scf] = PH_variables[6];
+            //   }
+
              if(pba->n_axion < pba->n_axion_security && ppw->pvecback[pba->index_bg_Omega_scf]<pba->security_small_Omega_scf && a>pow(10,pba->log10_axion_ac)){
                /*at late times, for small values of n, when the field becomes negligible we ignore its impact to avoid numerical bug */
                delta_rho_scf=0;
@@ -8732,6 +8746,7 @@ int perturbations_sources(
              + 3.*a_prime_over_a*(1.+pvecback[pba->index_bg_p_scf]/pvecback[pba->index_bg_rho_scf])*theta_over_k2;
         }
         _set_source_(ppt->index_tp_delta_scf) = delta_rho_scf/pvecback[pba->index_bg_rho_scf];
+        _set_source_(ppt->index_tp_delta_aux_scf) = 0; //LG
         _set_source_(ppt->index_tp_delta_phi_scf) = y[ppw->pv->index_pt_phi_scf];
         _set_source_(ppt->index_tp_delta_phi_over_phi_scf) = y[ppw->pv->index_pt_phi_scf]/ppw->pvecback[pba->index_bg_phi_scf];
         _set_source_(ppt->index_tp_delta_phi_prime_scf) = y[ppw->pv->index_pt_phi_prime_scf];
