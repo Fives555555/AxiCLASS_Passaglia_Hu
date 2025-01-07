@@ -4650,10 +4650,11 @@ int perturbations_vector_init(
       if (pba->has_scf == _TRUE_&& pba->scf_has_perturbations == _TRUE_) {
         if (pba->scf_evolve_like_axionCAMB == _FALSE_){
           ppv->y[ppv->index_pt_phi_scf] =
-            ppw->pv->y[ppw->pv->index_pt_phi_scf];
+            ppw->pv->y[ppw->pv->index_pt_phi_scf]; // LG delta phi 
 
           ppv->y[ppv->index_pt_phi_prime_scf] =
-            ppw->pv->y[ppw->pv->index_pt_phi_prime_scf];
+            ppw->pv->y[ppw->pv->index_pt_phi_prime_scf]; // LG delta phi prime
+            // printf("Vector init delta phi prime \n");
         }
         if (pba->scf_evolve_as_fluid == _TRUE_){ //CO 23.01.18
 
@@ -5500,7 +5501,7 @@ int perturbations_vector_free(
   return _SUCCESS_;
 }
 
-// PH approx. function starts
+// PH approx. function starts //LG
 void PH_values(       struct background * pba,
                       struct perturbations * ppt,
                       struct perturbations_workspace * ppw,
@@ -5614,7 +5615,7 @@ void PH_values(       struct background * pba,
   PH_variables[16] = Hprime;
 
   }
-  // PH approx. function ends
+  // PH approx. function ends // LG
 
 /**
  * For each mode, wavenumber and initial condition, this function
@@ -5665,7 +5666,7 @@ int perturbations_initial_conditions(struct precision * ppr,
   double c_gamma_squared,Phi_plus,phi;
   /** --> For scalars */
 
-  // PH and local variables
+  // PH and local variables //LG
   double PH_variables[17]; // 0=delta_rho, 1=delta_p, 2=cs2_scf, 3=ca2_scf, 4=theta_scf, 5=w_scf_f
   double H = 0.;
   double Hprime = 0.;
@@ -5981,8 +5982,14 @@ int perturbations_initial_conditions(struct precision * ppr,
         // printf("m_scf is %e pba->w_scf %e ca2 %e cs2 %e\n", pba->m_scf,pba->w_scf,ca2,pba->cs2_scf);
 
         if(pba->scf_evolve_like_axionCAMB == _FALSE_) { //CHANGE HERE? //LG
-          ppw->pv->y[ppw->pv->index_pt_phi_scf] = 0.;//a*a/k/k/ppw->pvecback[pba->index_bg_phi_prime_scf]*k*ktau_three/4.*1./(4.-6.*(1./3.)+3.*1.) * (ppw->pvecback[pba->index_bg_rho_scf] + ppw->pvecback[pba->index_bg_p_scf])* ppr->curvature_ini * s2_squared;
+          ppw->pv->y[ppw->pv->index_pt_phi_scf] = 0.;//a*a/k/k/ppw->pvecback[pba->index_bg_phi_prime_scf]*k*ktau_three/4.*1./(4.-6.*(1./3.)+3.*1.) * (ppw->pvecback[pba->index_bg_rho_scf] + ppw->pvecback[pba->index_bg_p_scf])* ppr->curvature_ini * s2_squared; 
+          
+          // LG delta phi
+
           ppw->pv->y[ppw->pv->index_pt_phi_prime_scf] = 0.;//a*a/ppw->pvecback[pba->index_bg_phi_prime_scf]*( - ktau_two/4.*(1.+1./3.)*(4.-3.*1.)/(4.-6.*(1/3.)+3.*1.)*ppw->pvecback[pba->index_bg_rho_scf] - ppw->pvecback[pba->index_bg_dV_scf]*ppw->pv->y[ppw->pv->index_pt_phi_scf])* ppr->curvature_ini * s2_squared;
+        
+          // LG delta phi prime
+          // printf("Initial conditions delta phi prime ");
 
           // LG ZERO
 
@@ -6267,11 +6274,13 @@ int perturbations_initial_conditions(struct precision * ppr,
         alpha_prime = 0.0; // LG ZERO???
           /* - 2. * a_prime_over_a * alpha + eta
              - 4.5 * (a2/k2) * ppw->rho_plus_p_shear; */
-          ppw->pv->y[ppw->pv->index_pt_phi_scf] += alpha*ppw->pvecback[pba->index_bg_phi_prime_scf];
+          ppw->pv->y[ppw->pv->index_pt_phi_scf] += alpha*ppw->pvecback[pba->index_bg_phi_prime_scf]; // LG delta phi
           ppw->pv->y[ppw->pv->index_pt_phi_prime_scf] +=
           (-2.*a_prime_over_a*alpha*ppw->pvecback[pba->index_bg_phi_prime_scf]
            -a*a* dV_scf(pba,ppw->pvecback[pba->index_bg_phi_scf])*alpha
-           +ppw->pvecback[pba->index_bg_phi_prime_scf]*alpha_prime);
+           +ppw->pvecback[pba->index_bg_phi_prime_scf]*alpha_prime); // LG delta phi prime
+
+          //  printf("initial conditions delta phi prime \n");
          }
          if (pba->scf_evolve_as_fluid == _TRUE_){
             // CHANGES HERE? LG
@@ -7580,8 +7589,14 @@ int perturbations_total_stress_energy(
                 weight_midpoint = pba->threshold_scf_fluid_m_over_H - (atanh(0.98)/10);
                 weight = 0.5 - 0.5 * tanh(10*(pba->m_scf*pba->H0/PH_variables[15] - weight_midpoint));
 
+                // printf("Aux calc \n"); // LG delta phi
               
                 y[ppw->pv->index_pt_delta_scf] = weight * y[ppw->pv->index_pt_delta_scf] + (1 - weight) * delta_scf_aux;
+
+
+                //LG delta phi test
+                // printf("Stress energy delta phi: %e \n", y[ppw->pv->index_pt_phi_scf]);
+
 
 
                 // printf("Weighted delta: %e \n", y[ppw->pv->index_pt_delta_scf]);
@@ -7706,7 +7721,6 @@ int perturbations_total_stress_energy(
                 ca2_scf = (pow(a,3)*pow(a_over_ac,3*pba->n_axion/(1+pba->n_axion))*(-1+pba->n_axion)-pow(a_over_ac,3/(1+pba->n_axion))*pow(pba->a_c,3)*(1+3*pba->n_axion))
                       /(pow(a,3)*pow(a_over_ac,3*pba->n_axion/(1+pba->n_axion))+pow(a_over_ac,3/(1+pba->n_axion))*pow(pba->a_c,3))/(1+pba->n_axion);
               }
-              // not sure here
               if(ppt->use_delta_scf_over_1plusw) delta_rho_scf = (1+ppw->pvecback[pba->index_bg_w_scf])*ppw->pvecback[pba->index_bg_rho_scf]*y[ppw->pv->index_pt_delta_scf];
               else delta_rho_scf = ppw->pvecback[pba->index_bg_rho_scf]*y[ppw->pv->index_pt_delta_scf]; //identical to fld above
               delta_p_scf = cs2_scf * delta_rho_scf;
@@ -8708,14 +8722,14 @@ int perturbations_sources(
     if (ppt->has_source_delta_scf == _TRUE_) {
       if (ppt->scf_kg_eq[index_md][index_k] == 0){ //evolve as fluid
 
-
-      // CHANGE TO NEW EFA??
-
-      // LG ZERO???
+      // LG 
       _set_source_(ppt->index_tp_delta_scf) = y[ppw->pv->index_pt_delta_scf];
-      _set_source_(ppt->index_tp_delta_phi_scf) = 0;
-      _set_source_(ppt->index_tp_delta_phi_over_phi_scf) = 0;
-      _set_source_(ppt->index_tp_delta_phi_prime_scf) = 0;
+      _set_source_(ppt->index_tp_delta_phi_scf) = 0;//y[ppw->pv->index_pt_phi_scf];//0; // LG delta phi source set to zero
+      _set_source_(ppt->index_tp_delta_phi_over_phi_scf) = 0;//y[ppw->pv->index_pt_phi_scf]/ppw->pvecback[pba->index_bg_phi_scf];//0;
+      _set_source_(ppt->index_tp_delta_phi_prime_scf) = 0;//y[ppw->pv->index_pt_phi_prime_scf];//0; // LG delta phi prime source set to zero
+
+      // printf("Sources delta phi prime ");
+
       }
       else{ //evolve as KG
         if (ppt->gauge == synchronous){
@@ -8732,9 +8746,11 @@ int perturbations_sources(
              + 3.*a_prime_over_a*(1.+pvecback[pba->index_bg_p_scf]/pvecback[pba->index_bg_rho_scf])*theta_over_k2;
         }
         _set_source_(ppt->index_tp_delta_scf) = delta_rho_scf/pvecback[pba->index_bg_rho_scf];
-        _set_source_(ppt->index_tp_delta_phi_scf) = y[ppw->pv->index_pt_phi_scf];
+        _set_source_(ppt->index_tp_delta_phi_scf) = y[ppw->pv->index_pt_phi_scf]; // LG delta phi
         _set_source_(ppt->index_tp_delta_phi_over_phi_scf) = y[ppw->pv->index_pt_phi_scf]/ppw->pvecback[pba->index_bg_phi_scf];
-        _set_source_(ppt->index_tp_delta_phi_prime_scf) = y[ppw->pv->index_pt_phi_prime_scf];
+        _set_source_(ppt->index_tp_delta_phi_prime_scf) = y[ppw->pv->index_pt_phi_prime_scf]; // LG delta phi prime
+
+        // printf("sources delta phi prime \n");
       }
     }
 
@@ -9367,16 +9383,14 @@ int perturbations_print_variables(double tau,
           delta_scf = delta_rho_scf/pvecback[pba->index_bg_rho_scf];
           theta_scf = rho_plus_p_theta_scf/(pvecback[pba->index_bg_rho_scf]+pvecback[pba->index_bg_p_scf]);
 
-          delta_phi_scf = y[ppw->pv->index_pt_phi_scf];
+          delta_phi_scf = y[ppw->pv->index_pt_phi_scf]; // LG delta phi
           delta_phi_over_phi_scf = y[ppw->pv->index_pt_phi_scf]/ppw->pvecback[pba->index_bg_phi_scf];
-          delta_phi_prime_scf = y[ppw->pv->index_pt_phi_prime_scf];
+          delta_phi_prime_scf = y[ppw->pv->index_pt_phi_prime_scf]; // LG delta phi prime
 
       }
 
       //If we are behaving as a fluid, mimicking fld:
       else { 
-
-        // CHANGE TO NEW EFA?
 
         if(ppt->use_delta_fld_over_1plusw == _TRUE_) delta_scf = (1+ppw->pvecback[pba->index_bg_w_scf])*y[ppw->pv->index_pt_delta_scf];
         else delta_scf = y[ppw->pv->index_pt_delta_scf];
@@ -9386,9 +9400,9 @@ int perturbations_print_variables(double tau,
         else {
           theta_scf = y[ppw->pv->index_pt_theta_scf];
         }
-        delta_phi_scf = 0;
-        delta_phi_over_phi_scf = 0;
-        delta_phi_prime_scf = 0;
+        delta_phi_scf = y[ppw->pv->index_pt_phi_scf];//0; // LG delta phi 
+        delta_phi_over_phi_scf = y[ppw->pv->index_pt_phi_scf]/ppw->pvecback[pba->index_bg_phi_scf];//0;
+        delta_phi_prime_scf = y[ppw->pv->index_pt_phi_prime_scf];//0; // LG delta phi prime  //LG delta phi printed as zero is this the issue for the outputted values?? - YES
       }
 
       // printf("a %e delta_scf %e\n",a,delta_scf);
@@ -10750,7 +10764,8 @@ int perturbations_derivs(double tau,
           fprintf(stdout,"Evolving as KG.\n");
         }
         /** - ----> field value */
-        dy[pv->index_pt_phi_scf] = y[pv->index_pt_phi_prime_scf];
+        dy[pv->index_pt_phi_scf] = y[pv->index_pt_phi_prime_scf]; // LG delta phi prime
+        // printf("Derivs delta phi prime ");
         if(ppt->perturbations_verbose>11){
           fprintf(stdout,"Passed 'field value calc' \n ");
         }
@@ -10760,6 +10775,8 @@ int perturbations_derivs(double tau,
         // - 2*a2/k2*metric_euler*pvecback[pba->index_bg_dV_scf] //VP: This term was missing in newtonian gauge, but we do not follow psi' so we cannot yet solve the perturbed KG equation in newtonian gauge.
         - (k2 + a2*pvecback[pba->index_bg_ddV_scf])*y[pv->index_pt_phi_scf]; //checked
 
+        // LG delta phi prime
+        // printf("Derivs delta phi prime ");
 
         // if(index_k==0)printf("phi' %e ddV %e\n",pvecback[pba->index_bg_phi_prime_scf],pvecback[pba->index_bg_ddV_scf]);
 
@@ -10773,7 +10790,18 @@ int perturbations_derivs(double tau,
 
       }
       else if(ppt->scf_kg_eq[index_md][index_k] == 0 && pba->scf_evolve_like_axionCAMB == _FALSE_){
-        dy[pv->index_pt_phi_prime_scf] = - 2.*a_prime_over_a*y[pv->index_pt_phi_prime_scf];
+
+        // LG delay delta phi change after switch
+        if(a < (pba->a_c*10.0) && a > (pba->a_c*0.5)){
+          dy[pv->index_pt_phi_prime_scf] =  - 2.*a_prime_over_a*y[pv->index_pt_phi_prime_scf]
+            - metric_continuity*pvecback[pba->index_bg_phi_prime_scf] 
+            - (k2 + a2*pvecback[pba->index_bg_ddV_scf])*y[pv->index_pt_phi_scf]; 
+        }
+        else{
+          dy[pv->index_pt_phi_prime_scf] = - 2.*a_prime_over_a*y[pv->index_pt_phi_prime_scf];
+        }
+
+        // dy[pv->index_pt_phi_prime_scf] = - 2.*a_prime_over_a*y[pv->index_pt_phi_prime_scf];
         // dy[pv->index_pt_phi_prime_scf] = 0;
         // dy[pv->index_pt_phi_scf] = ; //VP: if we have declared these variables we follow their evolution eventhough we have switched to fluid equations otherwise the code is blocked.
         dy[pv->index_pt_phi_scf] = y[pv->index_pt_phi_prime_scf]; //VP: if we have declared these variables we follow their evolution eventhough we have switched to fluid equations otherwise the code is blocked.
@@ -10857,16 +10885,16 @@ int perturbations_derivs(double tau,
 
 
 
-            // printf("k mode: %e, mass: %e, hLprime: %e \n", k, pba->m_scf*pba->H0, ppw->pvecmetric[ppw->index_mt_h_prime]);
-            // printf("m_ax: %e, H0: %e \n", pba->m_scf, pba->H0);
-            // printf("Scale factor: %e, Switch scale factor: %e \n", a, pba->a_c);
-            // printf("H: %e, Hprime: %e \n", PH_variables[15], PH_variables[16]);
-            // printf("Fluid delta: %e, Aux delta: %e \n", y[ppw->pv->index_pt_delta_scf], PH_variables[6]); 
-            // printf("phi: %e, phi_c: %e, phi_s: %e \n", pvecback[pba->index_bg_phi_scf], PH_variables[7], PH_variables[8]);
-            // printf("phi_prime: %e, phi_c_prime: %e, phi_s_prime: %e \n",pvecback[pba->index_bg_phi_prime_scf], PH_variables[9], PH_variables[10]);
-            // printf("delta_phi: %e, delta_phi_c: %e, delta_phi_s: %e \n",y[pv->index_pt_phi_scf], PH_variables[11], PH_variables[12]);
-            // printf("delta_phi_prime: %e, delta_phi_c_prime: %e, delta_phi_s_prime: %e \n",y[ppw->pv->index_pt_phi_prime_scf], PH_variables[13], PH_variables[14]);
-            // exit(0); // LG
+            printf("k mode: %e, mass: %e, hLprime: %e \n", k, pba->m_scf*pba->H0, ppw->pvecmetric[ppw->index_mt_h_prime]);
+            printf("m_ax: %e, H0: %e \n", pba->m_scf, pba->H0);
+            printf("Scale factor: %e, Switch scale factor: %e \n", a, pba->a_c);
+            printf("H: %e, Hprime: %e \n", PH_variables[15], PH_variables[16]);
+            printf("Fluid delta: %e, Aux delta: %e \n", y[ppw->pv->index_pt_delta_scf], PH_variables[6]); 
+            printf("phi: %e, phi_c: %e, phi_s: %e \n", pvecback[pba->index_bg_phi_scf], PH_variables[7], PH_variables[8]);
+            printf("phi_prime: %e, phi_c_prime: %e, phi_s_prime: %e \n",pvecback[pba->index_bg_phi_prime_scf], PH_variables[9], PH_variables[10]);
+            printf("delta_phi: %e, delta_phi_c: %e, delta_phi_s: %e \n",y[pv->index_pt_phi_scf], PH_variables[11], PH_variables[12]);
+            printf("delta_phi_prime: %e, delta_phi_c_prime: %e, delta_phi_s_prime: %e \n",y[ppw->pv->index_pt_phi_prime_scf], PH_variables[13], PH_variables[14]);
+            exit(0); // LG
 
           }
         }

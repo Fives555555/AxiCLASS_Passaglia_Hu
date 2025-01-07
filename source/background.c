@@ -3356,8 +3356,34 @@ int background_derivs(
     else {
         dy[pba->index_bi_rho_scf] = -3.*y[pba->index_bi_rho_scf]*(1+pba->w_scf);
     }
-    dy[pba->index_bi_phi_scf] = 0;
-    dy[pba->index_bi_phi_prime_scf] = 0;
+
+      if(pba->scf_evolve_as_fluid_PH == _TRUE_){
+
+        if(a < (pba->a_c*10.0) && a > (pba->a_c*0.5)){
+
+          dy[pba->index_bi_phi_scf] = y[pba->index_bi_phi_prime_scf]/a/H;
+          dy[pba->index_bi_phi_prime_scf] = - 2*y[pba->index_bi_phi_prime_scf] - a*dV_scf(pba,y[pba->index_bi_phi_scf])/H;
+
+        }
+        else{
+
+          dy[pba->index_bi_phi_scf] = 0;
+          dy[pba->index_bi_phi_prime_scf] = 0;
+
+        }
+
+      }
+      else{
+        dy[pba->index_bi_phi_scf] = 0;
+        dy[pba->index_bi_phi_prime_scf] = 0;
+      }
+
+
+    // dy[pba->index_bi_phi_scf] = 0;
+    // dy[pba->index_bi_phi_prime_scf] = 0;
+
+
+
     if(pba->background_verbose > 11) printf("Evolving scalar field using fluid equation, rho %e rho prime %e.\n",y[pba->index_bi_rho_scf],dy[pba->index_bi_rho_scf]);
 
     //
