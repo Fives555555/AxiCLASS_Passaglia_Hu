@@ -3357,6 +3357,7 @@ int background_derivs(
         dy[pba->index_bi_rho_scf] = -3.*y[pba->index_bi_rho_scf]*(1+pba->w_scf);
     }
 
+      // LG Delay switch for phi and phi_prime 
       if(pba->scf_evolve_as_fluid_PH == _TRUE_){
 
         if(a < (pba->a_c*10.0) && a > (pba->a_c*0.5)){
@@ -3377,8 +3378,9 @@ int background_derivs(
         dy[pba->index_bi_phi_scf] = 0;
         dy[pba->index_bi_phi_prime_scf] = 0;
       }
+      // LG Delay switch end
 
-
+    // LG comment out for delay switch
     // dy[pba->index_bi_phi_scf] = 0;
     // dy[pba->index_bi_phi_prime_scf] = 0;
 

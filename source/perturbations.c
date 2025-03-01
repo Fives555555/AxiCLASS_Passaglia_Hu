@@ -7168,18 +7168,18 @@ int perturbations_einstein(
        gauge-independent variables (you could comment this out if you
        really want gauge-dependent results) */
 
-    // if (ppt->has_source_delta_m == _TRUE_) { //LG - comment out for comparison
-    //   ppw->delta_m += 3. *ppw->pvecback[pba->index_bg_a]*ppw->pvecback[pba->index_bg_H] * ppw->theta_m/k2;
-    //   // note: until 2.4.3 there was a typo, the factor was (-2 H'/H) instead
-    //   // of (3 aH). There is the same typo in the CLASSgal paper
-    //   // 1307.1459v1,v2,v3. It came from a confusion between (1+w_total)
-    //   // and (1+w_matter)=1 [the latter is the relevant one here].
-    //   //
-    //   // note2: at this point this gauge-invariant variable is only
-    //   // valid if all matter components are pressureless and
-    //   // stable. This relation will be generalized soon to the case
-    //   // of decaying dark matter.
-    // }
+    if (ppt->has_source_delta_m == _TRUE_) { //LG - comment out for comparison
+      ppw->delta_m += 3. *ppw->pvecback[pba->index_bg_a]*ppw->pvecback[pba->index_bg_H] * ppw->theta_m/k2;
+      // note: until 2.4.3 there was a typo, the factor was (-2 H'/H) instead
+      // of (3 aH). There is the same typo in the CLASSgal paper
+      // 1307.1459v1,v2,v3. It came from a confusion between (1+w_total)
+      // and (1+w_matter)=1 [the latter is the relevant one here].
+      //
+      // note2: at this point this gauge-invariant variable is only
+      // valid if all matter components are pressureless and
+      // stable. This relation will be generalized soon to the case
+      // of decaying dark matter.
+    }
 
     if (ppt->has_source_delta_cb == _TRUE_) {
       ppw->delta_cb += 3. *ppw->pvecback[pba->index_bg_a]*ppw->pvecback[pba->index_bg_H] * ppw->theta_cb/k2;//check gauge transformation
@@ -7762,6 +7762,7 @@ int perturbations_total_stress_energy(
           }
           else{
             y[ppw->pv->index_pt_theta_scf] = (1./3.*k*k/a2*ppw->pvecback[pba->index_bg_phi_prime_scf]*y[ppw->pv->index_pt_phi_scf]) / (ppw->pvecback[pba->index_bg_rho_scf]+ppw->pvecback[pba->index_bg_p_scf]);
+            // printf("Field theta before switch: %e \n", y[ppw->pv->index_pt_theta_scf]); //LG
 
             // PH approx. starts
             if(pba->scf_evolve_as_fluid_PH == _TRUE_){
@@ -7773,8 +7774,16 @@ int perturbations_total_stress_energy(
               weight = 0.5 - 0.5 * tanh(10*(pba->m_scf*pba->H0/PH_variables[15] - weight_midpoint));
 
               // printf("Theta Weight: %e, scale factor: %e, k: %e, switch scale factor: %e, Pert H: %e, m/H: %e \n", weight, a, k, pba->a_c, PH_variables[15], pba->m_scf*pba->H0/PH_variables[15]);
+              // printf("Weight: %e \n", weight); //LG
+
+              // printf("Weight: %e \n", weight);
+              // printf("Aux theta: %e \n", theta_scf_aux);
+              // printf("Theta before weighting = %e \n", y[ppw->pv->index_pt_theta_scf]);
 
               y[ppw->pv->index_pt_theta_scf] = weight * y[ppw->pv->index_pt_theta_scf] + (1 - weight) * theta_scf_aux;
+
+              // printf("Theta after weighting = %e \n", y[ppw->pv->index_pt_theta_scf]);
+
               // if(k < 1.09e-3 && k > 8.0e-4){
               // printf("Aux theta: %e, Weight: %e, Weighted theta: %e, Scale factor: %e, k: %e, KG Flag: %d, Ratio: %e \n", theta_scf_aux, weight, y[ppw->pv->index_pt_theta_scf], a, k, ppt->scf_kg_eq[index_md][index_k], pba->m_scf*pba->H0/PH_variables[15]);
               // }
@@ -9476,69 +9485,69 @@ int perturbations_print_variables(double tau,
 
     /* converting synchronous variables to newtonian ones */
  // if (ppt->gauge == synchronous && ppt->gauge_output == newtonian_output) {
-//  if (ppt->gauge == synchronous) { // LG - comment out for comparison
+ if (ppt->gauge == synchronous) { // LG - comment out for comparison
 
-//     // printf("here!\n");
-//       /* density and velocity perturbations (comment out if you wish to keep synchronous variables) */
+    // printf("here!\n");
+      /* density and velocity perturbations (comment out if you wish to keep synchronous variables) */
 
-//       delta_g -= 4. * pvecback[pba->index_bg_H]*pvecback[pba->index_bg_a]*alpha;
-//       theta_g += k*k*alpha;
+      delta_g -= 4. * pvecback[pba->index_bg_H]*pvecback[pba->index_bg_a]*alpha;
+      theta_g += k*k*alpha;
 
-//       delta_b -= 3. * pvecback[pba->index_bg_H]*pvecback[pba->index_bg_a]*alpha;
-//       theta_b += k*k*alpha;
+      delta_b -= 3. * pvecback[pba->index_bg_H]*pvecback[pba->index_bg_a]*alpha;
+      theta_b += k*k*alpha;
 
-//       if (pba->has_ur == _TRUE_) {
-//         delta_ur -= 4. * pvecback[pba->index_bg_H]*pvecback[pba->index_bg_a]*alpha;
-//         theta_ur += k*k*alpha;
-//       }
+      if (pba->has_ur == _TRUE_) {
+        delta_ur -= 4. * pvecback[pba->index_bg_H]*pvecback[pba->index_bg_a]*alpha;
+        theta_ur += k*k*alpha;
+      }
 
-//       if (pba->has_idr == _TRUE_) {
-//         delta_idr -= 4. * pvecback[pba->index_bg_H]*pvecback[pba->index_bg_a]*alpha;
-//         theta_idr += k*k*alpha;
-//       }
+      if (pba->has_idr == _TRUE_) {
+        delta_idr -= 4. * pvecback[pba->index_bg_H]*pvecback[pba->index_bg_a]*alpha;
+        theta_idr += k*k*alpha;
+      }
 
-//       if (pba->has_dr == _TRUE_) {
-//         delta_dr += (-4.*a*H+a*pba->Gamma_dcdm*pvecback[pba->index_bg_rho_dcdm]/pvecback[pba->index_bg_rho_dr])*alpha;
+      if (pba->has_dr == _TRUE_) {
+        delta_dr += (-4.*a*H+a*pba->Gamma_dcdm*pvecback[pba->index_bg_rho_dcdm]/pvecback[pba->index_bg_rho_dr])*alpha;
 
-//         theta_dr += k*k*alpha;
-//       }
+        theta_dr += k*k*alpha;
+      }
 
-//       if (pba->has_cdm == _TRUE_) {
-//         delta_cdm -= 3. * pvecback[pba->index_bg_H]*pvecback[pba->index_bg_a]*alpha;
-//         theta_cdm += k*k*alpha;
-//       }
+      if (pba->has_cdm == _TRUE_) {
+        delta_cdm -= 3. * pvecback[pba->index_bg_H]*pvecback[pba->index_bg_a]*alpha;
+        theta_cdm += k*k*alpha;
+      }
 
-//       if (pba->has_idm == _TRUE_) {
-//         delta_idm -= 3. * pvecback[pba->index_bg_H]*pvecback[pba->index_bg_a]*alpha;
-//         theta_idm += k*k*alpha;
-//       }
+      if (pba->has_idm == _TRUE_) {
+        delta_idm -= 3. * pvecback[pba->index_bg_H]*pvecback[pba->index_bg_a]*alpha;
+        theta_idm += k*k*alpha;
+      }
 
-//       if (pba->has_ncdm == _TRUE_) {
-//         for (n_ncdm=0; n_ncdm < pba->N_ncdm; n_ncdm++){
-//           /** - --> TODO: gauge transformation of delta, deltaP/rho (?) and theta using -= 3aH(1+w_ncdm) alpha for delta. */
-//         }
-//       }
+      if (pba->has_ncdm == _TRUE_) {
+        for (n_ncdm=0; n_ncdm < pba->N_ncdm; n_ncdm++){
+          /** - --> TODO: gauge transformation of delta, deltaP/rho (?) and theta using -= 3aH(1+w_ncdm) alpha for delta. */
+        }
+      }
 
-//       if (pba->has_dcdm == _TRUE_) {
-//         delta_dcdm += alpha*(-a*pba->Gamma_dcdm-3.*a*H);
-//         theta_dcdm += k*k*alpha;
-//       }
+      if (pba->has_dcdm == _TRUE_) {
+        delta_dcdm += alpha*(-a*pba->Gamma_dcdm-3.*a*H);
+        theta_dcdm += k*k*alpha;
+      }
 
-//       if (pba->has_scf == _TRUE_ && pba->scf_has_perturbations == _TRUE_) {
-//         // ANY CHANGE HERE?
-//           delta_scf -= -3.0*alpha*pvecback[pba->index_bg_a]*H*(1+pvecback[pba->index_bg_w_scf]);
-//         if(ppt->use_big_theta_scf == _TRUE_) big_theta_scf += (1.0+pvecback[pba->index_bg_w_scf])*k*k*alpha;
-//         else theta_scf += k*k*alpha;
-//       }
+      if (pba->has_scf == _TRUE_ && pba->scf_has_perturbations == _TRUE_) {
+        // ANY CHANGE HERE?
+          delta_scf -= -3.0*alpha*pvecback[pba->index_bg_a]*H*(1+pvecback[pba->index_bg_w_scf]);
+        if(ppt->use_big_theta_scf == _TRUE_) big_theta_scf += (1.0+pvecback[pba->index_bg_w_scf])*k*k*alpha;
+        else theta_scf += k*k*alpha;
+      }
 
-//       if (pba->has_fld == _TRUE_){
-//         class_call(background_w_fld(pba,a,&w_fld,&dw_over_da_fld,&integral_fld), pba->error_message, ppt->error_message);
-//         delta_fld -= 3.*(1.0+w_fld) * pvecback[pba->index_bg_H]*pvecback[pba->index_bg_a]*alpha;
-//         theta_fld += k*k*alpha;
-//       }
-//           // delta_p_over_rho_fld[n] = cs2[n]*delta_fld[n]+3*a_prime_over_a*(1+w_fld)*(cs2[n]-ca2[n])*theta_fld[n]/k2;
+      if (pba->has_fld == _TRUE_){
+        class_call(background_w_fld(pba,a,&w_fld,&dw_over_da_fld,&integral_fld), pba->error_message, ppt->error_message);
+        delta_fld -= 3.*(1.0+w_fld) * pvecback[pba->index_bg_H]*pvecback[pba->index_bg_a]*alpha;
+        theta_fld += k*k*alpha;
+      }
+          // delta_p_over_rho_fld[n] = cs2[n]*delta_fld[n]+3*a_prime_over_a*(1+w_fld)*(cs2[n]-ca2[n])*theta_fld[n]/k2;
 
-//     }
+    }
 
     //    fprintf(ppw->perturbations_output_file," ");
     /** - --> Handle (re-)allocation */
@@ -10791,7 +10800,7 @@ int perturbations_derivs(double tau,
       }
       else if(ppt->scf_kg_eq[index_md][index_k] == 0 && pba->scf_evolve_like_axionCAMB == _FALSE_){
 
-        // LG delay delta phi change after switch
+        // LG delay delta phi and delta phi prime change after switch
         if(a < (pba->a_c*10.0) && a > (pba->a_c*0.5)){
           dy[pv->index_pt_phi_prime_scf] =  - 2.*a_prime_over_a*y[pv->index_pt_phi_prime_scf]
             - metric_continuity*pvecback[pba->index_bg_phi_prime_scf] 
@@ -10800,8 +10809,11 @@ int perturbations_derivs(double tau,
         else{
           dy[pv->index_pt_phi_prime_scf] = - 2.*a_prime_over_a*y[pv->index_pt_phi_prime_scf];
         }
+        // LG Delay switch end
 
+        // LG comment out for delay switch
         // dy[pv->index_pt_phi_prime_scf] = - 2.*a_prime_over_a*y[pv->index_pt_phi_prime_scf];
+
         // dy[pv->index_pt_phi_prime_scf] = 0;
         // dy[pv->index_pt_phi_scf] = ; //VP: if we have declared these variables we follow their evolution eventhough we have switched to fluid equations otherwise the code is blocked.
         dy[pv->index_pt_phi_scf] = y[pv->index_pt_phi_prime_scf]; //VP: if we have declared these variables we follow their evolution eventhough we have switched to fluid equations otherwise the code is blocked.
@@ -10885,16 +10897,18 @@ int perturbations_derivs(double tau,
 
 
 
-            printf("k mode: %e, mass: %e, hLprime: %e \n", k, pba->m_scf*pba->H0, ppw->pvecmetric[ppw->index_mt_h_prime]);
-            printf("m_ax: %e, H0: %e \n", pba->m_scf, pba->H0);
-            printf("Scale factor: %e, Switch scale factor: %e \n", a, pba->a_c);
-            printf("H: %e, Hprime: %e \n", PH_variables[15], PH_variables[16]);
-            printf("Fluid delta: %e, Aux delta: %e \n", y[ppw->pv->index_pt_delta_scf], PH_variables[6]); 
-            printf("phi: %e, phi_c: %e, phi_s: %e \n", pvecback[pba->index_bg_phi_scf], PH_variables[7], PH_variables[8]);
-            printf("phi_prime: %e, phi_c_prime: %e, phi_s_prime: %e \n",pvecback[pba->index_bg_phi_prime_scf], PH_variables[9], PH_variables[10]);
-            printf("delta_phi: %e, delta_phi_c: %e, delta_phi_s: %e \n",y[pv->index_pt_phi_scf], PH_variables[11], PH_variables[12]);
-            printf("delta_phi_prime: %e, delta_phi_c_prime: %e, delta_phi_s_prime: %e \n",y[ppw->pv->index_pt_phi_prime_scf], PH_variables[13], PH_variables[14]);
-            exit(0); // LG
+            // printf("k mode: %e, mass: %e, hLprime: %e \n", k, pba->m_scf*pba->H0, ppw->pvecmetric[ppw->index_mt_h_prime]);
+            // printf("m_ax: %e, H0: %e \n", pba->m_scf, pba->H0);
+            // printf("Scale factor: %e, Switch scale factor: %e \n", a, pba->a_c);
+            // printf("H: %e, Hprime: %e \n", PH_variables[15], PH_variables[16]);
+            // printf("Fluid delta: %e, Aux delta: %e \n", y[ppw->pv->index_pt_delta_scf], PH_variables[6]);
+            // printf("Fluid theta: %e, Aux theta: %e \n", y[ppw->pv->index_pt_theta_scf], PH_variables[4]);
+            // printf("phi: %e, phi_c: %e, phi_s: %e \n", pvecback[pba->index_bg_phi_scf], PH_variables[7], PH_variables[8]);
+            // printf("phi_prime: %e, phi_c_prime: %e, phi_s_prime: %e \n",pvecback[pba->index_bg_phi_prime_scf], PH_variables[9], PH_variables[10]);
+            // printf("delta_phi: %e, delta_phi_c: %e, delta_phi_s: %e \n",y[pv->index_pt_phi_scf], PH_variables[11], PH_variables[12]);
+            // printf("delta_phi_prime: %e, delta_phi_c_prime: %e, delta_phi_s_prime: %e \n",y[ppw->pv->index_pt_phi_prime_scf], PH_variables[13], PH_variables[14]);
+            // printf("BG rho: %e, BG pressure: %e \n", pvecback[pba->index_bg_rho_scf], pvecback[pba->index_bg_p_scf]);
+            // exit(0); // LG
 
           }
         }
