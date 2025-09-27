@@ -7299,14 +7299,6 @@ int perturbations_total_stress_energy(
   double theta_scf_aux = 0.;
   double weight = 0.;
   double weight_midpoint = 0.;
-  FILE *wfile; //LG REMOVE
-  FILE *afile;
-  FILE *kfile;
-  FILE *rfile;
-  FILE *cs2file;
-  FILE *phcs2file;
-  FILE *ca2file;
-  FILE *phca2file;
 
   /** - wavenumber and scale factor related quantities */
 
@@ -7579,11 +7571,7 @@ int perturbations_total_stress_energy(
                 PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
                 delta_scf_aux = PH_variables[6];
 
-
-
                 // printf("Aux delta: %e \n", delta_scf_aux); //LG
-
-
 
                 // weight = 0.5 - 0.5 * tanh(10*(pba->m_scf*pba->H0/PH_variables[15] - MAX(pba->threshold_scf_fluid_m_over_H - 2, 2)));
                 weight_midpoint = pba->threshold_scf_fluid_m_over_H - (atanh(0.98)/10);
@@ -7597,11 +7585,8 @@ int perturbations_total_stress_energy(
                 //LG delta phi test
                 // printf("Stress energy delta phi: %e \n", y[ppw->pv->index_pt_phi_scf]);
 
-
-
                 // printf("Weighted delta: %e \n", y[ppw->pv->index_pt_delta_scf]);
                 // printf("Weight value: %e \n", weight); //LG
-
 
                 // printf("Delta Weight: %e, scale factor: %e, k: %e, switch scale factor: %e, Pert H: %e, m/H: %e \n", weight, a, k, pba->a_c,  PH_variables[15], pba->m_scf*pba->H0/PH_variables[15]);
                 // printf("Switch a: %e \n", pba->a_c); // LG
@@ -7633,31 +7618,6 @@ int perturbations_total_stress_energy(
               {
 
                 PH_values(pba, ppt, ppw, k, y[ppw->pv->index_pt_phi_scf], y[ppw->pv->index_pt_phi_prime_scf], PH_variables);
-
-                // // LG REMOVE INITIALISED VARIABLES WHEN DONE 
-                // afile = fopen("26_cs2_a_file.txt", "a");
-                // fprintf(afile, "\n %e", a);
-                // fclose(afile);
-
-                // kfile = fopen("26_cs2_k_file.txt", "a");
-                // fprintf(kfile,"\n %e", k);
-                // fclose(kfile);
-
-                // cs2file = fopen("26_cs2_file.txt", "a");
-                // fprintf(cs2file,"\n %e", cs2_scf);
-                // fclose(cs2file);
-
-                // phcs2file = fopen("26_PH_cs2_file.txt", "a");
-                // fprintf(phcs2file,"\n %e", PH_variables[2]);
-                // fclose(phcs2file);
-
-                // ca2file = fopen("26_ca2_file.txt", "a");
-                // fprintf(ca2file,"\n %e", ca2_scf);
-                // fclose(ca2file);
-
-                // phca2file = fopen("26_PH_ca2_file.txt", "a");
-                // fprintf(phca2file,"\n %e", PH_variables[3]);
-                // fclose(phca2file);
 
                 cs2_scf = PH_variables[2];
                 ca2_scf = PH_variables[3];
@@ -7787,23 +7747,6 @@ int perturbations_total_stress_energy(
               // if(k < 1.09e-3 && k > 8.0e-4){
               // printf("Aux theta: %e, Weight: %e, Weighted theta: %e, Scale factor: %e, k: %e, KG Flag: %d, Ratio: %e \n", theta_scf_aux, weight, y[ppw->pv->index_pt_theta_scf], a, k, ppt->scf_kg_eq[index_md][index_k], pba->m_scf*pba->H0/PH_variables[15]);
               // }
-
-              // LG REMOVE INITIALISED VARIABLES WHEN DONE 
-              // wfile = fopen("28_weight_file.txt", "a");
-              // fprintf(wfile, "\n %e", weight);
-              // fclose(wfile);
-
-              // afile = fopen("28_a_file.txt", "a");
-              // fprintf(afile, "\n %e", a);
-              // fclose(afile);
-
-              // kfile = fopen("28_k_file.txt", "a");
-              // fprintf(kfile, "\n %e", k);
-              // fclose(kfile);
-
-              // rfile = fopen("28_ratio_file.txt", "a");
-              // fprintf(rfile, "\n %e", pba->m_scf*pba->H0/PH_variables[15]);
-              // fclose(rfile);
 
             }
             // PH approx. ends //LG
@@ -8733,9 +8676,9 @@ int perturbations_sources(
 
       // LG 
       _set_source_(ppt->index_tp_delta_scf) = y[ppw->pv->index_pt_delta_scf];
-      _set_source_(ppt->index_tp_delta_phi_scf) = 0;//y[ppw->pv->index_pt_phi_scf];//0; // LG delta phi source set to zero
-      _set_source_(ppt->index_tp_delta_phi_over_phi_scf) = 0;//y[ppw->pv->index_pt_phi_scf]/ppw->pvecback[pba->index_bg_phi_scf];//0;
-      _set_source_(ppt->index_tp_delta_phi_prime_scf) = 0;//y[ppw->pv->index_pt_phi_prime_scf];//0; // LG delta phi prime source set to zero
+      _set_source_(ppt->index_tp_delta_phi_scf) = y[ppw->pv->index_pt_phi_scf];//0; // LG delta phi source set to zero
+      _set_source_(ppt->index_tp_delta_phi_over_phi_scf) = y[ppw->pv->index_pt_phi_scf]/ppw->pvecback[pba->index_bg_phi_scf];//0;
+      _set_source_(ppt->index_tp_delta_phi_prime_scf) = y[ppw->pv->index_pt_phi_prime_scf];//0; // LG delta phi prime source set to zero
 
       // printf("Sources delta phi prime ");
 
